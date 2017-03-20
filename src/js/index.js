@@ -1,7 +1,10 @@
 'use strict';
 
 // import App from './apps/App';
-import App from './apps/OrthoApp';
+// import App from './apps/OrthoApp';
+// import App from './apps/App02'
+// import App from './apps/App03'
+import App from './apps/App04';
 
 let app;
 
@@ -14,8 +17,9 @@ function init(){
     app = new App({
         isDebug: true
     });
+    app.resize();
 
-    document.body.appendChild(app.dom);
+    document.body.appendChild(app.domElement);
     document.addEventListener('mousemove', onDocumentMouseMove, false);
 }
 
@@ -25,7 +29,6 @@ function start(){
 
 
 function onDocumentMouseMove(event){
-    // event.preventDefault();
 
     let mouseX = ( event.clientX / window.innerWidth ) * 2 - 1;
     let mouseY = -( event.clientY / window.innerHeight ) * 2 + 1;
