@@ -18,6 +18,13 @@ const entry = './src/js/index.js';
 const outfile = 'bundle.js';
 const outputFoldername = 'src01';
 const inlinesource = require('gulp-inline-source');
+const aliasify = require('aliasify').configure({
+    aliases: {
+        "SanZigen": "./src/js/SanZigen"
+    },
+    verbose: false
+});
+
 
 
 //the development task
@@ -31,8 +38,9 @@ gulp.task('watch', function(cb) {
     open: argv.open,        // whether to open the browser
     browserify: {
       transform:[
-        babelify,   //browserify transforms
-        glslify
+          babelify,
+          glslify,
+          aliasify
       ]
     }
   }).on('exit', cb);
@@ -40,7 +48,7 @@ gulp.task('watch', function(cb) {
 
 //the distribution bundle task
 gulp.task('bundle', function() {
-  var bundler = browserify(entry, { transform: [babelify, glslify] }).bundle();
+  var bundler = browserify(entry, { transform: [babelify, glslify, aliasify] }).bundle();
 
   if(argv.public){
        bundler

@@ -2,39 +2,21 @@
 
 import { webGLShader, WebGLRenderer } from '../SanZigen'
 
-import CustomShape from './CustomShape';
+import CustomShape from './Shapes/CustomShape';
+import CustomShape2 from './Shapes/CustomShape2'
 
 const TweenMax = require('gsap');
 
 const THREE = require('three');
-const vertexShaderSource = `#version 300 es
-
-in vec4 aPosition;
-
-void main(){
-    gl_Position = aPosition;
-}
-`;
-
-const fragmentShaderSource = `#version 300 es
-precision mediump float;
-
-uniform float uColor;
-
-out vec4 outColor;
-
-void main() {
-  // Just set the output to a constant redish-purple
-  outColor = vec4(1, uColor, 0.5, 1);
-}
-`
-
 
 export default class App {
     constructor(params){
 
         this.renderer = new WebGLRenderer({alpha : true});
         this.shape = new CustomShape({
+            renderer : this.renderer,
+        });
+        this.shape2 = new CustomShape2({
             renderer : this.renderer,
         });
 
@@ -60,17 +42,10 @@ export default class App {
         gl.clearColor(0, 0, 0, 1);
         gl.clear(gl.COLOR_BUFFER_BIT);
 
-        /**
-        gl.useProgram(this.program);
-        this._updateShape();
-        gl.bindVertexArray(this.shape0Vao);
-
-        let uCOlorPosition = gl.getUniformLocation(this.program, 'uColor');
-        gl.uniform1f(uCOlorPosition, (Math.cos(this.time) + 1)/2) ;
-
-        gl.drawArrays( gl.TRIANGLE_FAN, 0, 4);
-         */
         this.shape
+                .update()
+                .draw();
+        this.shape2
                 .update()
                 .draw();
 

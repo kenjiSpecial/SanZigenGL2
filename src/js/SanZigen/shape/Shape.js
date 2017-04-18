@@ -27,8 +27,6 @@ export  class Shape extends EventEmitter{
 
     initializeAttributes(attributes){
         for(let key in attributes){
-            // console.log(this.gl);
-            console.log( attributes[key].indexArray);
             this.attributes[key] = new Attribute({
                 gl : this.gl,
                 program : this.program,

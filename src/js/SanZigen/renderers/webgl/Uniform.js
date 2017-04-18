@@ -79,30 +79,30 @@ export class Uniform {
         this.uniformCount = uniformCount;
     }
     set1f(value0){
-        if(this.cache == value0) return;
+        if(this.cache === value0) return;
 
         this.cache = x;
         this.gl.uniform1f(this.uniformHandle, value0);
     }
     set2f(value0, value1){
-        if(this.cache && this.cache.x == value0 && this.cache.y == value1 ) return;
+        if(this.cache && this.cache.x === value0 && this.cache.y === value1 ) return;
 
         this.cache = {x: value0, y : value1};
         this.gl.uniform2f(this.uniformHandle, value0, value1);
     }
     set(value){
         console.log(arguments.length);
-        if(this.cache == value) return;
+        if(this.cache === value) return;
 
-        if(this.uniformCount == 1){
+        if(this.uniformCount === 1){
             this.gl.uniform1f(this.uniformHandle, value);
-        }else if(this.uniformCount == 2){
+        }else if(this.uniformCount === 2){
             if(Array.isArray(value)){
                 this.gl.uniform2f(this.uniformHandle, value)
             }else{
                 this.gl.uniform2f(this.uniformHandle, value.x, value.y)
             }
-        }else if(this.uniformCount == 3){
+        }else if(this.uniformCount === 3){
             if(Array.isArray(value)){
                 this.gl.uniform3f( this.uniformHandle, value );
             }else{

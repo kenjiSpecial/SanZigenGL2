@@ -1,6 +1,6 @@
 "use strict";
 
-import {Shape} from '../SanZigen'
+import {Shape} from 'SanZigen'
 const vertexShaderSource = `#version 300 es
 
 in vec2 aPosition;
@@ -34,8 +34,8 @@ export default class CustomShape extends Shape{
     constructor(params) {
         super({
             renderer : params.renderer,
-            vertexShaderSource : vertexShaderSource,
-            fragmentShaderSource : fragmentShaderSource
+            vertexShaderSource : vertexShaderSource.trim(),
+            fragmentShaderSource : fragmentShaderSource.trim()
         });
 
         this.x = params.x ? params.x : 500;
@@ -75,9 +75,11 @@ export default class CustomShape extends Shape{
         this.uniforms['uPosition'].set2f( this.x, this.y);
         this.uniforms['uSize'].set2f( this.width, this.height);
         this.uniforms['uWindow'].set2f( window.innerWidth, window.innerHeight );
+        this.isUniformUpdate = false;
     }
     update(dt = 1/60){
         if(!this.time) this.time = 0;
+
         this.time += dt;
 
         this.x = window.innerWidth/2 + 300 * Math.cos(this.time );
@@ -92,6 +94,7 @@ export default class CustomShape extends Shape{
         gl.bindVertexArray(this.shapeVao);
 
         this._updateUniforms();
+
         gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
         return this;
     }
