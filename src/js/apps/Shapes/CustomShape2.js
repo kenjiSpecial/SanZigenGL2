@@ -78,7 +78,6 @@ export default class CustomShape extends Shape{
         this.uniforms['uSize'].set2f( this.width, this.height);
         this.uniforms['uWindow'].set2f( window.innerWidth, window.innerHeight );
         this.uniforms['uColor'].set1f( )
-        this.isUniformUpdate = false;
     }
     update(dt = 1/60){
         if(!this.time) this.time = 0;

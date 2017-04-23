@@ -7,7 +7,7 @@ import (
 	"bufio"
 )
 
-const PROMPT = ">> "
+const PROMPT = ">> Type your file name:"
 
 
 func main() {
@@ -25,13 +25,13 @@ func Start(in io.Reader, out io.Writer){
 	}
 
 	fileName := scanner.Text()
-	dst := "../src/js/apps/" + fileName
+	dst := "./src/js/apps/" + fileName + ".js"
 
-	err := CopyFile("Boilerplate/Boilerplate.js", dst)
+	err := CopyFile("./gogo/Boilerplate/Boilerplate.js", dst)
 	if err != nil {
 		fmt.Printf("Copied failed %q\n", err)
 	} else {
-		fmt.Printf("CopyFile [src/js/apps/" + fileName + "] succeeded\n")
+		fmt.Printf("CopyFile [src/js/apps/" + fileName + ".js] succeeded\n")
 	}
 
 }

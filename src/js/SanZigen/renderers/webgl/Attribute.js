@@ -9,7 +9,6 @@ export class Attribute {
         this.gl = params.gl;
         this.itemSize = params.itemSize;
         this.indexArray = !!params.indexArray;
-        this.data = params.data;
         this.name = params.name;
         this.program = params.program;
 
@@ -23,18 +22,15 @@ export class Attribute {
             }
         }
 
-
         this.buffer = this.gl.createBuffer();
         this.bindTarget = this.indexArray ? this.gl.ELEMENT_ARRAY_BUFFER : this.gl.ARRAY_BUFFER;
-        console.log(this.bindTarget == this.gl.ARRAY_BUFFER);
 
-        this.updateData(this.data);
+        this.updateData(params.data);
     }
     updateData(data){
+        this.data = data;
         this.gl.bindBuffer(this.bindTarget, this.buffer);
         this.gl.bufferData(this.bindTarget, this.data, this.gl.STATIC_DRAW);
-        console.log(this.data);
-        // this.gl.bindBuffer(this.bindTarget, null);
     }
     bind(){
         this.gl.bindBuffer(this.bindTarget, this.buffer);

@@ -4,7 +4,8 @@
 // import App from './apps/OrthoApp';
 // import App from './apps/App02'
 // import App from './apps/App03'
-import App from './apps/App04';
+// import App from './apps/AppTriangle';
+import App from './apps/AppCircle';
 
 let app;
 

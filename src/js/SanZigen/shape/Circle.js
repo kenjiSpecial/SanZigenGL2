@@ -5,7 +5,7 @@ import {Color} from "../math/Color";
 
 const glslify = require('glslify');
 
-export class Triangle extends Shape {
+export class Circle extends Shape {
     constructor(params){
         super({
             renderer: params.renderer,

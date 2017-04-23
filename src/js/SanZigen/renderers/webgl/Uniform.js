@@ -81,7 +81,7 @@ export class Uniform {
     set1f(value0){
         if(this.cache === value0) return;
 
-        this.cache = x;
+        this.cache = value0;
         this.gl.uniform1f(this.uniformHandle, value0);
     }
     set2f(value0, value1){
@@ -89,6 +89,12 @@ export class Uniform {
 
         this.cache = {x: value0, y : value1};
         this.gl.uniform2f(this.uniformHandle, value0, value1);
+    }
+    set3f(value0, value1, value2){
+        if(this.cache && this.cache.x === value0 && this.cache.y === value1 && this.z === value2 ) return;
+
+        this.cache = {x: value0, y: value1, z: value2};
+        this.gl.uniform3f(this.uniformHandle, value0, value1, value2);
     }
     set(value){
         console.log(arguments.length);

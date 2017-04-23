@@ -1,7 +1,7 @@
 import {WebgGLProgram} from './webgl/WebgGLProgram';
 
 class WebGLRenderer {
-     constructor(params) {
+     constructor(params = {}) {
          let _alpha = params.alpha || false;
 
          this.onContextLost = this.onContextLost.bind(this)

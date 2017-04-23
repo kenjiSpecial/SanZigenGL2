@@ -1,12 +1,11 @@
 'use strict';
 
-import { webGLShader, WebGLRenderer } from '../SanZigen'
+import { WebGLRenderer } from 'SanZigen'
 
 import CustomShape from './Shapes/CustomShape';
 import CustomShape2 from './Shapes/CustomShape2'
 
 const TweenMax = require('gsap');
-
 const THREE = require('three');
 
 export default class App {
