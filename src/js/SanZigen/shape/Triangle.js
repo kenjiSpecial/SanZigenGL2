@@ -62,10 +62,6 @@ export class Triangle extends Shape {
         this.initializeAttributes(shapeAttributes);
 
     }
-    updateColor(value){
-
-    }
-
     updatePts(params = {}){
         if(params.pt0) this.pt0 = params.pt0;
         if(params.pt1) this.pt1 = params.pt1;
@@ -105,7 +101,6 @@ export class Triangle extends Shape {
         this._updateUniforms();
 
         gl.drawArrays(gl.TRIANGLE_FAN, 0, 3);
-
     }
 
     resize(){

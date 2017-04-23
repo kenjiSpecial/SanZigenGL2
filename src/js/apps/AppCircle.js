@@ -1,6 +1,6 @@
 'use strict';
 
-import { WebGLRenderer, Triangle, Vector2 } from 'SanZigen'
+import { WebGLRenderer, Circle, Triangle, Vector2 } from 'SanZigen'
 
 const TweenMax = require('gsap');
 const Stats = require('stats.js');
@@ -8,7 +8,7 @@ const dat = require('dat.gui/build/dat.gui.js');
 
 export default class App {
     constructor(params){
-        this.renderer = new WebGLRenderer();
+        this.renderer = new WebGLRenderer({alpha: true, antialias: true});
         this.domElement = this.renderer.domElement;
 
 
@@ -23,36 +23,28 @@ export default class App {
     }
 
     _initializeShape(params){
-        this.triangle = new Triangle({
-            renderer: this.renderer,
-            pt0: new Vector2(-100, 0),
-            pt1: new Vector2(0, 200),
-            pt2: new Vector2(100, 0)
-        });
+        this.circles = [];
+        for(let ii = 0; ii < 10; ii++){
+            let circle = new Circle({ renderer : this.renderer, x: window.innerWidth * Math.random(), y: window.innerHeight * Math.random(), rad : 20 + 280 * Math.random()});
+            this.circles.push(circle);
+        }
+        this.circle = new Circle({ renderer : this.renderer, x: window.innerWidth * Math.random(), y: window.innerHeight * Math.random(), rad : 20 + 280 * Math.random()});
     }
 
     _addGui(){
         this.gui = new dat.GUI();
+        this.playAndStopGui = this.gui.add(this, '_playAndStop').name('pause')
 
-        this.positionFolder = this.gui.addFolder("coordinates");
-        this.positionFolder.add(this.triangle.pt0, 'x', -200, 200).name("pt0.x").onChange(this._updateShape.bind(this));
-        this.positionFolder.add(this.triangle.pt0, 'y', -200, 200).name("pt0.y").onChange(this._updateShape.bind(this));
-        this.positionFolder.add(this.triangle.pt1, 'x', -200, 200).name("pt1.x").onChange(this._updateShape.bind(this));
-        this.positionFolder.add(this.triangle.pt1, 'y', -200, 200).name("pt1.y").onChange(this._updateShape.bind(this));
-        this.positionFolder.add(this.triangle.pt2, 'x', -200, 200).name("pt2.x").onChange(this._updateShape.bind(this));
-        this.positionFolder.add(this.triangle.pt2, 'y', -200, 200).name("pt2.y").onChange(this._updateShape.bind(this));
-
-        this.gui.add(this.triangle, 'rotation', -Math.PI, +Math.PI).step(0.01);
-        this.playAndStopGui = this.gui.add(this, '_playAndStop').name('pause');
-        this.colorGui = this.gui.addColor(this.triangle, 'color').name('color').onChange(this._updateColor.bind(this));
-
+        this.radGui = this.gui.add(this.circle, 'rad', 10, 200).onChange(this._onUpdateRad.bind(this));
+        this.colorGui = this.gui.addColor(this.circle, 'color').name('color'); //.onChange(this._updateColor.bind(this));
+    }
+    _onUpdateRad(){
+        this.circle.updateRadius();
     }
     _updateShape(){
         this.triangle.updatePts();
     }
-    _updateColor(){
-        this.triangle.updateColor();
-    }
+
     _addStats(){
         this.stats = new Stats();
         document.body.appendChild( this.stats.dom );
@@ -69,7 +61,8 @@ export default class App {
         gl.clearColor(0, 0, 0, 1);
         gl.clear(gl.COLOR_BUFFER_BIT);
 
-        this.triangle.update().draw();
+        this.circles.forEach(circle => circle.update().draw());
+        this.circle.update().draw();
 
         this.stats.update();
     }

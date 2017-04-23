@@ -3,6 +3,7 @@ import {WebgGLProgram} from './webgl/WebgGLProgram';
 class WebGLRenderer {
      constructor(params = {}) {
          let _alpha = params.alpha || false;
+         let _antialias = params.antialias || false;
 
          this.onContextLost = this.onContextLost.bind(this)
          this._canvas = params.canvas || document.createElement('canvas')
@@ -10,7 +11,9 @@ class WebGLRenderer {
 
          try {
              let attributes = {
-                 alpha : _alpha
+                 alpha : _alpha,
+                 antialias : _antialias
+                 // premultipliedAlpha : true
              };
              this.gl = this._canvas.getContext('webgl2', attributes);
 

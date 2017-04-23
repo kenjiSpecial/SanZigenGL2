@@ -16,7 +16,7 @@ export class Attribute {
             this.location = this.gl.getAttribLocation(this.program, this.name);
             this.type = params.type;
 
-            if(typeof this.location == -1){
+            if(typeof this.location === -1){
                 console.error(`[Attribute.js]: attribute ${this.name} is not defined`)
                 return -1;
             }
@@ -36,7 +36,6 @@ export class Attribute {
         this.gl.bindBuffer(this.bindTarget, this.buffer);
 
         if(!this.indexArray){
-            console.log(this.itemSize);
             this.gl.vertexAttribPointer(this.location, this.itemSize, this.gl.FLOAT, false, 0, 0);
             this.gl.enableVertexAttribArray(this.location);
         }
