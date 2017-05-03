@@ -1,4 +1,4 @@
-#three-js-prototype-startker-kit
+# three-js-prototype-startker-kit
 
 https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API
 
