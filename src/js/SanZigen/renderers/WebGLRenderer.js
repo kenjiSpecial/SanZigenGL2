@@ -35,7 +35,7 @@ class WebGLRenderer {
      }
 
      createProgram( vertexShaderSource, fragmentShaderSource, params = {}){
-         let webglProgram =  new WebgGLProgram({
+         let webglProgram =  new WebGLProgram({
              gl : this.gl,
              vertexShaderSource : vertexShaderSource,
              fragmentShaderSource : fragmentShaderSource,

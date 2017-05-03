@@ -1,7 +1,7 @@
 'use strict';
 
 import { webGLShader, WebGLRenderer } from '../SanZigen'
-const TweenMax = require('gsap');
+// const TweenMax = require('gsap');
 
 const THREE = require('three');
 const vertexShaderSource = `#version 300 es

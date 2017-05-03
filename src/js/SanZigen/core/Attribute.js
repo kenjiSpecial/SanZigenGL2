@@ -2,8 +2,7 @@
 export class Attribute {
     /**
      *
-     * @param params = {gl : <webgl2Context>, itemSize, indexArray, data, name, program, indexArray }
-     * @return {number}
+     * @param params = {gl : <webgl2Context>, itemSize : <int>, indexArray : <Boolean>, data : <Float32Array or Uint16Array>, name: <String>, program: <WebGLProgram>, usage: <usage(refer to https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferData)> }
      */
     constructor(params) {
         this.gl = params.gl;
@@ -12,6 +11,7 @@ export class Attribute {
         this.name = params.name;
         this.program = params.program;
         this.usage = params.usage || this.gl.STATIC_DRAW;
+        this.transformFeedbackVarying = params.transformFeedbackVarying;
 
         if(!this.indexArray){
             this.location = this.gl.getAttribLocation(this.program, this.name);
@@ -39,6 +39,20 @@ export class Attribute {
         if(!this.indexArray){
             this.gl.vertexAttribPointer(this.location, this.itemSize, this.gl.FLOAT, false, 0, 0);
             this.gl.enableVertexAttribArray(this.location);
+        }
+    }
+    findTransformFeedbackVaryingLocation(varyigInfoArray){
+        if(this.transformFeedbackVarying){
+            this.varyingLocation  = varyigInfoArray.findIndex(varyigInfo=>varyigInfo.name === this.transformFeedbackVarying );
+        }else{
+            this.varyingLocation = -1;
+        }
+
+        console.log(this.varyingLocation);
+    }
+    bindBufferBase(){
+        if(this.varyingLocation >= 0){
+            this.gl.bindBufferBase( this.gl.TRANSFORM_FEEDBACK_BUFFER, this.varyingLocation, this.buffer);
         }
     }
 

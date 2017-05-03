@@ -3,7 +3,6 @@
 import { webGLShader, WebGLRenderer } from '../SanJigen/SanJigen/'
 const TweenMax = require('gsap');
 
-const THREE = require('three');
 const vertexShaderSource = `#version 300 es
 
 in vec4 aPosition;

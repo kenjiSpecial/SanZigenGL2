@@ -27,7 +27,10 @@ export default class App {
     }
 
     animateIn(){
-        TweenMax.ticker.addEventListener('tick', this.loop, this);
+        this.isLoop = false;
+
+        if(this.isLoop) TweenMax.ticker.addEventListener('tick', this.loop, this);
+        else            this.loop();
     }
     _updateShape(){
 
@@ -64,10 +67,10 @@ export default class App {
             case 27:
                 this.isLoop = !this.isLoop;
                 if(this.isLoop){
-                    this.clock.stop();
+                    // this.clock.stop();
                     TweenMax.ticker.addEventListener('tick', this.loop, this);
                 }else{
-                    this.clock.start();
+                    // this.clock.start();
                     TweenMax.ticker.removeEventListener('tick', this.loop, this);
                 }
                 break;
