@@ -11,6 +11,12 @@ npm run
   build  - the compressed production build
 ```
 
+## Features
+
 ## License
 
 MIT, see [LICENSE.md](http://github.com/mattdesl/budo-gulp-starter/blob/master/LICENSE.md) for details.
+
+## Code Coments
+
+follow someting like this https://github.com/mrdoob/three.js/blob/master/src/materials/LineBasicMaterial.js

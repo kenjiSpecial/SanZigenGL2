@@ -1,7 +1,7 @@
 "use strict";
 const EventEmitter = require('eventemitter3');
-import {Uniform} from '../renderers/webgl/Uniform';
-import {Attribute} from '../renderers/webgl/Attribute';
+import {Uniform} from '../core/Uniform';
+import {Attribute} from '../core/Attribute';
 
 export  class Shape extends EventEmitter{
     constructor(params) {
@@ -9,9 +9,19 @@ export  class Shape extends EventEmitter{
         params = params || {};
         this.uniforms = {};
         this.attributes = {};
-        this.renderer = params.renderer;
+        try {
+            this.renderer = params.renderer;
+            if(this.renderer === undefined){
+                throw 'renderer is undefined.';
+            }
+        }catch(e){
+            console.error(e);
+        }
+
         this.gl = this.renderer.gl;
-        this.program = this.renderer.createProgram(params.vertexShaderSource, params.fragmentShaderSource);
+        this.program = this.renderer.createProgram(params.vertexShaderSource, params.fragmentShaderSource, {
+            transformFeedbackVaryingArray : params.transformFeedbackVaryingArray
+        });
 
         this._initializeUniforms();
     }
@@ -24,6 +34,8 @@ export  class Shape extends EventEmitter{
             this.uniforms[uniformInfo.name] = new Uniform({ uniformInfo : uniformInfo, uniformHandle : uniformHandle, gl: this.gl });
         }
     }
+
+
 
     initializeAttributes(attributes){
         for(let key in attributes){

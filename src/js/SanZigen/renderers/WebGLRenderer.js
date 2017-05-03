@@ -1,4 +1,4 @@
-import {WebgGLProgram} from './webgl/WebgGLProgram';
+import {WebGLProgram} from './webgl/WebGLProgram';
 
 class WebGLRenderer {
      constructor(params = {}) {
@@ -34,11 +34,12 @@ class WebGLRenderer {
 
      }
 
-     createProgram( vertexShaderSource, fragmentShaderSource ){
+     createProgram( vertexShaderSource, fragmentShaderSource, params = {}){
          let webglProgram =  new WebgGLProgram({
              gl : this.gl,
              vertexShaderSource : vertexShaderSource,
-             fragmentShaderSource : fragmentShaderSource
+             fragmentShaderSource : fragmentShaderSource,
+             transformFeedbackVaryingArray : params.transformFeedbackVaryingArray,
          });
 
          return webglProgram.program;

@@ -2,7 +2,7 @@
 export class Attribute {
     /**
      *
-     * @param params( gl, itemSize, indexArray, data, name, program, indexArray )
+     * @param params = {gl : <webgl2Context>, itemSize, indexArray, data, name, program, indexArray }
      * @return {number}
      */
     constructor(params) {
@@ -11,6 +11,7 @@ export class Attribute {
         this.indexArray = !!params.indexArray;
         this.name = params.name;
         this.program = params.program;
+        this.usage = params.usage || this.gl.STATIC_DRAW;
 
         if(!this.indexArray){
             this.location = this.gl.getAttribLocation(this.program, this.name);
@@ -30,7 +31,7 @@ export class Attribute {
     updateData(data){
         this.data = data;
         this.gl.bindBuffer(this.bindTarget, this.buffer);
-        this.gl.bufferData(this.bindTarget, this.data, this.gl.STATIC_DRAW);
+        this.gl.bufferData(this.bindTarget, this.data, this.usage);
     }
     bind(){
         this.gl.bindBuffer(this.bindTarget, this.buffer);

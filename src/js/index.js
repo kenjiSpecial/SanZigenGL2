@@ -6,7 +6,8 @@
 // import App from './apps/App03'
 // import App from './apps/AppTriangle';
 // import App from './apps/AppCircle';
-import App from './apps/AppRectangles';
+// import App from './apps/AppRectangles';
+import App from './apps/AppFeedbackTest02/';
 
 let app;
 

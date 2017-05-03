@@ -1,9 +1,13 @@
 
 export class Uniform {
+
     constructor(params) {
         this.uniformInfo = params.uniformInfo;
         this.name = this.uniformInfo.name;
-        this.uniformHandle = params.uniformHandle;
+        if(params.uniformHandle){
+            console.warn('[Uniform.js]: params.uniformHandle is not used anymore. use params.uniformLocation');
+        }
+        this.uniformLocation = params.uniformHandle || params.uniformLocation;
         this.gl = params.gl;
 
         let UniformClass;
@@ -82,38 +86,52 @@ export class Uniform {
         if(this.cache === value0) return;
 
         this.cache = value0;
-        this.gl.uniform1f(this.uniformHandle, value0);
+        this.gl.uniform1f(this.uniformLocation, value0);
     }
     set2f(value0, value1){
         if(this.cache && this.cache.x === value0 && this.cache.y === value1 ) return;
 
         this.cache = {x: value0, y : value1};
-        this.gl.uniform2f(this.uniformHandle, value0, value1);
+        this.gl.uniform2f(this.uniformLocation, value0, value1);
     }
     set3f(value0, value1, value2){
-        if(this.cache && this.cache.x === value0 && this.cache.y === value1 && this.z === value2 ) return;
+        if(this.cache && this.cache.x === value0 && this.cache.y === value1 && this.cache.z === value2 ) return;
 
         this.cache = {x: value0, y: value1, z: value2};
-        this.gl.uniform3f(this.uniformHandle, value0, value1, value2);
+        this.gl.uniform3f(this.uniformLocation, value0, value1, value2);
+    }
+    set4f(value0, value1, value2, value3){
+        if(this.cache && this.cache.x === value0 && this.cache.y === value1 && this.cache.z === value2 && this.cache.w === value3) return;
+
+        this.cache = {x: value0, y: value1, z: value2, w: value3};
+        this.gl.uniform4f(this.uniformLocation, value0, value1, value2, value3);
     }
     set(value){
         console.log(arguments.length);
         if(this.cache === value) return;
 
         if(this.uniformCount === 1){
-            this.gl.uniform1f(this.uniformHandle, value);
+            this.gl.uniform1f(this.uniformLocation, value);
         }else if(this.uniformCount === 2){
             if(Array.isArray(value)){
-                this.gl.uniform2f(this.uniformHandle, value)
+                this.gl.uniform2fv(this.uniformLocation, value)
             }else{
-                this.gl.uniform2f(this.uniformHandle, value.x, value.y)
+                this.gl.uniform2f(this.uniformLocation, value.x, value.y)
             }
         }else if(this.uniformCount === 3){
             if(Array.isArray(value)){
-                this.gl.uniform3f( this.uniformHandle, value );
+                this.gl.uniform3fv( this.uniformLocation, value );
             }else{
-                this.gl.uniform3f(this.uniformHandle, value.x, value.y, value.z);
+                this.gl.uniform3f(this.uniformLocation, value.x, value.y, value.z);
             }
+        }else if(this.uniformCount === 4){
+            if(Array.isArray(value)){
+                this.gl.uniform4fv(thihs.uniformLocation, value);
+            }else{
+                this.gl.uniform4f(thihs.uniformLocation, value.x, value.y, value.z, value.w);
+            }
+        }else{
+            console.error(`make method for uniformCount:${this.uniformCount}`)
         }
     }
 
