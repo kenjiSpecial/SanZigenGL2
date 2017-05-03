@@ -15,6 +15,8 @@ const babelify = require('babelify').configure({
 });
 
 const entry = './src/js/index.js';
+const libraryEntry = './src/js/SanZigen/legacy.js';
+
 const outfile = 'bundle.js';
 const outputFoldername = 'src01';
 const inlinesource = require('gulp-inline-source');
@@ -69,11 +71,20 @@ gulp.task('bundle', function() {
   }else{
       return bundler
         .pipe(source('index.js'))
-        .pipe(streamify(uglify()))
+        // .pipe(streamify(uglify()))
         .pipe(rename(outfile))
         .pipe(gulp.dest('./app'));
 
   }
 });
+
+gulp.task('library', function(){
+    var bundler = browserify(libraryEntry, { transform: [babelify, glslify, aliasify] }).bundle();
+
+    bundler.pipe(source('index.js'))
+        .pipe(rename('SanZigenGL2.js'))
+        .pipe(gulp.dest('./dest'));
+})
+
 
 

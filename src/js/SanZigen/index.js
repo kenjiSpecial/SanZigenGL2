@@ -18,3 +18,4 @@ export {Shape} from './shape/Shape';
 export {Triangle} from './shape/Triangle';
 export {Circle} from './shape/Circle'
 export {Rectangle} from './shape/Rectangle';
+

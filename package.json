@@ -39,7 +39,8 @@
     "open": "gulp watch --open",
     "start": "gulp watch",
     "build": "gulp bundle --production",
-    "public": "gulp bundle --production --public"
+    "public": "gulp bundle --production --public",
+    "library": "gulp library"
   },
   "keywords": [
     "budo",

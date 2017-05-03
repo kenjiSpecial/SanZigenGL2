@@ -12,6 +12,7 @@ export class ProgramRenderer extends EventEmitter {
 
         this.renderer = params.renderer;
         this.gl = this.renderer.gl;
+        this.currentSourceIdx = 0;
 
         this.webGLProgram = new WebGLProgram({
             gl: this.gl,
@@ -19,6 +20,14 @@ export class ProgramRenderer extends EventEmitter {
             fragmentShaderSource: params.fragmentShaderSource,
             transformFeedbackVaryingArray: params.transformFeedbackVaryingArray,
         });
+
+
+        this.varyigInfoArray = [];
+        for(let ii = 0; ii < params.transformFeedbackVaryingArray.length; ii++){
+            let varingVariable = this.gl.getTransformFeedbackVarying(this.webGLProgram.program, ii);
+            this.varyigInfoArray.push(varingVariable);
+        }
+
 
         this._setUniforms();
         this.initializeShape();
@@ -44,10 +53,6 @@ export class ProgramRenderer extends EventEmitter {
 
     }
 
-    // let shapeAttributes = {
-    // positions : {name : 'aPosition', itemSize : 2, data: this.vertices},
-    // indices: {name: 'indices', indexArray: true, data: new Uint16Array(indices)},
-    // };
     initializeVBOs(attributes){
         this.VAOs = [this.gl.createVertexArray(), this.gl.createVertexArray()];
         this.VBOs = [];
@@ -59,7 +64,6 @@ export class ProgramRenderer extends EventEmitter {
             this.gl.bindVertexArray(this.VAOs[ii]);
 
             for(let key in attributes){
-                console.log(key);
                 this.VBOs[ii][key] = new Attribute({
                     gl: this.gl,
                     usage: this.gl.STREAM_COPY,
@@ -67,19 +71,22 @@ export class ProgramRenderer extends EventEmitter {
                     name: attributes[key].name,
                     indexArray: attributes[key].indexArray,
                     data : attributes[key].data,
+                    program : this.webGLProgram.program,
+                    transformFeedbackVarying : attributes[key].transformFeedbackVarying
                 });
                 this.VBOs[ii][key].bind();
+                this.VBOs[ii][key].findTransformFeedbackVaryingLocation(this.varyigInfoArray);
             }
         }
 
     }
 
     initializeTransformFeedback(){
-        this.transformFeedback = this.webglProgram.gl.createTransformFeedback();
+        this.transformFeedback = this.webGLProgram.gl.createTransformFeedback();
     }
 
     useProgram(){
-        this.gl.useProgram(this.webglProgram.program);
+        this.gl.useProgram(this.webGLProgram.program);
         return this;
     }
 
@@ -87,12 +94,34 @@ export class ProgramRenderer extends EventEmitter {
         if(this.transformFeedback) this.gl.bindTransformFeedback(this.gl.TRANSFORM_FEEDBACK, this.transformFeedback);
         return this;
     }
+    updateVAO(){
+        let sourceVAO = this.VAOs[this.currentSourceIdx];
+        this.gl.bindVertexArray(sourceVAO);
+    }
+    updateVBO(){
+        this.currentSourceIdx = (this.currentSourceIdx  + 1) % 2;
+        let destVBOs   = this.VBOs[this.currentSourceIdx];
+
+        for(let key in destVBOs){
+            destVBOs[key].bindBufferBase();
+        }
+        
+        return this;
+    }
 
     update(){
-        return;
+        return this;
     }
-
+    beginTransformFeedback(primitiveMode = this.gl.POINTS){
+        this.gl.beginTransformFeedback(primitiveMode);
+        return this;
+    }
     draw(){
-
+        return this;
     }
+    endTransformFeedback(){
+        this.gl.endTransformFeedback();
+        return this;
+    }
+
 }

@@ -3,7 +3,7 @@ import {webGLShader} from './WebGLShader';
 export class WebGLProgram {
     constructor( params ) {
         this.gl = params.gl;
-        this.transformFeedbackVaryingArray = params.transformFeedbackVaryingArray;
+        this._transformFeedbackVaryingArray = params.transformFeedbackVaryingArray;
 
         this.vertexShader = webGLShader(this.gl, this.gl.VERTEX_SHADER, params.vertexShaderSource);
         this.fragmentShader= webGLShader(this.gl, this.gl.FRAGMENT_SHADER, params.fragmentShaderSource);
@@ -15,8 +15,8 @@ export class WebGLProgram {
         this.gl.attachShader(program, this.vertexShader);
         this.gl.attachShader(program, this.fragmentShader);
 
-        if(this.transformFeedbackVaryingArray &&  Array.isArray(this.transformFeedbackVaryingArray))
-            this.gl.transformFeedbackVaryings(program, this.transformFeedbackVaryingArray, this.gl.SEPARATE_ATTRIBS );
+        if(this._transformFeedbackVaryingArray &&  Array.isArray(this._transformFeedbackVaryingArray))
+            this.gl.transformFeedbackVaryings(program, this._transformFeedbackVaryingArray, this.gl.SEPARATE_ATTRIBS );
         this.gl.linkProgram(program);
 
         try{
