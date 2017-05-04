@@ -15,7 +15,8 @@ const LIFETIME_LOCATION = 3;
 const ID_LOCATION = 4;
 const NUM_LOCATIONS = 5;
 
-const NUM_PARTICLES = 100000;
+// const NUM_PARTICLES = 100000;
+const NUM_SHAPE = 10;
 const ACCELERATION = -1.0;
 
 
@@ -25,6 +26,7 @@ const vertexShaderSource = `#version 300 es
 #define SPAWNTIME_LOCATION 2
 #define LIFETIME_LOCATION 3
 #define ID_LOCATION 4
+#define VERTICE_LOCATION 5
 precision highp float;
 precision highp int;
 precision highp sampler3D;
@@ -35,6 +37,7 @@ layout(location = VELOCITY_LOCATION) in vec2 a_velocity;
 layout(location = SPAWNTIME_LOCATION) in float a_spawntime;
 layout(location = LIFETIME_LOCATION) in float a_lifetime;
 layout(location = ID_LOCATION) in float a_ID;
+layout(location = VERTICE_LOCATION) in vec2 a_vertice; 
 out vec2 v_position;
 out vec2 v_velocity;
 out float v_spawntime;
@@ -56,7 +59,7 @@ void main()
         v_spawntime = a_spawntime;
         v_lifetime = a_lifetime;
     }
-    gl_Position = vec4(v_position, 0.0, 1.0);
+    gl_Position = vec4(v_position + a_vertice, 0.0, 1.0);
     gl_PointSize = 0.1;
 }
 `;
@@ -99,13 +102,17 @@ export default class App {
             transformFeedbackVaryingArray : ['v_position', 'v_velocity', 'v_spawntime', 'v_lifetime'],
         });
 
-        let particlePosition = new Float32Array(NUM_PARTICLES * 2);
-        let particleVelocity = new Float32Array(NUM_PARTICLES * 2);
-        let particleSpawnTime = new Float32Array(NUM_PARTICLES);
-        let particleLifeTime = new Float32Array(NUM_PARTICLES);
-        let particleIDs = new Float32Array(NUM_PARTICLES);
+
+        let particlePosition = new Float32Array(NUM_SHAPE * 2 * 3);
+        let particleVelocity = new Float32Array(NUM_SHAPE * 2 * 3);
+        let particleSpawnTime = new Float32Array(NUM_SHAPE * 3);
+        let particleLifeTime = new Float32Array(NUM_SHAPE  * 3);
+        let particleIDs = new Float32Array(NUM_SHAPE  * 3);
+        let particleVertices = new Float32Array(NUM_SHAPE * 2 * 3);
+        let particleIndices = new Uint16Array(NUM_SHAPE * 3)
 
 
+        /**
         for(let pp = 0; pp < NUM_PARTICLES; pp++){
             particlePosition[pp * 2] = 0.0;
             particlePosition[pp * 2 + 1] = 0.0;
@@ -114,16 +121,37 @@ export default class App {
             particleSpawnTime[pp] = 0.0;
             particleLifeTime[pp] = 0.0;
             particleIDs[pp] = pp;
+        } */
+
+        for(let ii = 0; ii < NUM_SHAPE; ii++){
+            for(let jj = 0; jj  < 3; jj++){
+                let pp = jj + ii * 3;
+
+                particlePosition[pp * 2] = 0.0;
+                particlePosition[pp * 2 + 1] = 0.0;
+                particleVelocity[2 * pp] = 0.0;
+                particleVelocity[2 * pp + 1] = 0.0;
+                particleSpawnTime[pp] = 0.0;
+                particleLifeTime[pp] = 0.0;
+                particleIDs[pp] = ii;
+                particleIndices[pp] = ii;
+                particleVertices[pp * 2] = -0.05 + 0.1 * Math.random();
+                particleVertices[pp * 2 + 1] = -0.05 + 0.1 * Math.random();
+            }
         }
+
 
         this.programRenderer.initializeVBOs([
             { name: 'a_position',  itemSize: 2, data: particlePosition,  transformFeedbackVarying: 'v_position' },
             { name: 'a_velocity',  itemSize: 2, data: particleVelocity,  transformFeedbackVarying: 'v_velocity' },
             { name: 'a_spawntime', itemSize: 1, data: particleSpawnTime, transformFeedbackVarying: 'v_spawntime' },
             { name: 'a_lifetime',  itemSize: 1, data: particleLifeTime,  transformFeedbackVarying: 'v_lifetime' },
-            { name: 'a_ID', itemSize: 1, data: particleIDs }
+            { name: 'a_ID', itemSize: 1, data: particleIDs },
+            { name: 'a_vertice', itemSize: 2, data : particleVertices},
+            { name: 'indices', indexArray: true, data: particleIndices },
         ]);
 
+        this.indiceLength = particleIndices.length;
     }
 
     _initializeShape(params){
@@ -165,8 +193,10 @@ export default class App {
 
         this.programRenderer.updateVAO();
         this.programRenderer.updateVBO();
-        this.programRenderer.beginTransformFeedback();
-        this.programRenderer.gl.drawArrays(gl.POINTS, 0, NUM_PARTICLES);
+        this.programRenderer.beginTransformFeedback(gl.TRIANGLES );
+        // this.programRenderer.gl.drawArrays(gl.TRIANGLES, 0, NUM_SHAPE * 3);
+        // console.log(this.indiceLength);
+        gl.drawElements(gl.TRIANGLES, this.indiceLength, gl.UNSIGNED_SHORT, 0);
         this.programRenderer.endTransformFeedback()
     }
 

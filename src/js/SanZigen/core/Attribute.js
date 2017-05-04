@@ -47,8 +47,6 @@ export class Attribute {
         }else{
             this.varyingLocation = -1;
         }
-
-        console.log(this.varyingLocation);
     }
     bindBufferBase(){
         if(this.varyingLocation >= 0){

@@ -66,7 +66,7 @@ export class ProgramRenderer extends EventEmitter {
             for(let key in attributes){
                 this.VBOs[ii][key] = new Attribute({
                     gl: this.gl,
-                    usage: this.gl.STREAM_COPY,
+                    usage: attributes[key].indexArray ? this.gl.STATIC_DRAW : this.gl.STREAM_COPY,
                     itemSize: attributes[key].itemSize,
                     name: attributes[key].name,
                     indexArray: attributes[key].indexArray,
