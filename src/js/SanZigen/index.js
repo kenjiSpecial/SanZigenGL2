@@ -8,6 +8,7 @@ export {WebGLProgram} from './renderers/webgl/WebGLProgram';
 export {TransformFeedback} from './core/TransformFeedback';
 export {Uniform} from './core/Uniform';
 export {ProgramRenderer} from './core/ProgramRenderer';
+export {Attribute} from './core/Attribute';
 
 export {Clock} from './core/Clock';
 

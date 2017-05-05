@@ -10,9 +10,16 @@
     "url": "https://github.com/mattdesl"
   },
   "dependencies": {
+    "cheerio": "^0.22.0",
+    "chrome-remote-interface": "^0.22.0",
+    "connect": "^3.6.1",
     "dat.gui": "github:dataarts/dat.gui",
     "eventemitter3": "^2.0.2",
     "gsap": "^1.19.0",
+    "http-server": "^0.10.0",
+    "lighthouse": "^1.6.5",
+    "parse5": "^3.0.2",
+    "serve-static": "^1.12.2",
     "stats.js": "mrdoob/stats.js",
     "three": "mrdoob/three.js#dev",
     "three-orbit-controls": "^82.1.0"
@@ -40,7 +47,8 @@
     "start": "gulp watch",
     "build": "gulp bundle --production",
     "public": "gulp bundle --production --public",
-    "library": "gulp library"
+    "library": "gulp library",
+    "chrome": "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary --remote-debugging-port=9222 --window-size=600,414"
   },
   "keywords": [
     "budo",

@@ -11,6 +11,7 @@ export class Attribute {
         this.name = params.name;
         this.program = params.program;
         this.usage = params.usage || this.gl.STATIC_DRAW;
+        // if(this.usage !== )
         this.transformFeedbackVarying = params.transformFeedbackVarying;
 
         if(!this.indexArray){
@@ -40,6 +41,8 @@ export class Attribute {
             this.gl.vertexAttribPointer(this.location, this.itemSize, this.gl.FLOAT, false, 0, 0);
             this.gl.enableVertexAttribArray(this.location);
         }
+
+        return this;
     }
     findTransformFeedbackVaryingLocation(varyigInfoArray){
         if(this.transformFeedbackVarying){
@@ -47,11 +50,15 @@ export class Attribute {
         }else{
             this.varyingLocation = -1;
         }
+
+        return this;
     }
     bindBufferBase(){
         if(this.varyingLocation >= 0){
             this.gl.bindBufferBase( this.gl.TRANSFORM_FEEDBACK_BUFFER, this.varyingLocation, this.buffer);
         }
+
+        return this;
     }
 
 }

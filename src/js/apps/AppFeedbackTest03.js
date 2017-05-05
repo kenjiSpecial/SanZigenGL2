@@ -1,7 +1,7 @@
 // https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/transform_feedback_separated_2.html#L246-L278
 'use strict';
 
-import {WebGLRenderer, WebGLProgram, Shape, Vector2, TransformFeedback, Clock, Uniform, ProgramRenderer} from 'SanZigen'
+import {WebGLRenderer, WebGLProgram, Shape, Vector2, TransformFeedback, Clock, Uniform, ProgramRenderer, Attribute} from 'SanZigen'
 
 
 const TweenMax = require('gsap');
@@ -80,7 +80,9 @@ void main()
 
 export default class App {
     constructor(params){
-        this.renderer = new WebGLRenderer();
+        this.renderer = new WebGLRenderer({
+            antialias : true
+        });
         this.domElement = this.renderer.domElement;
 
         this._initializeShape(params);
@@ -111,18 +113,6 @@ export default class App {
         let particleVertices = new Float32Array(NUM_SHAPE * 2 * 3);
         let particleIndices = new Uint16Array(NUM_SHAPE * 3)
 
-
-        /**
-        for(let pp = 0; pp < NUM_PARTICLES; pp++){
-            particlePosition[pp * 2] = 0.0;
-            particlePosition[pp * 2 + 1] = 0.0;
-            particleVelocity[pp * 2] = 0.0;
-            particleVelocity[pp * 2 + 1] = 0.0;
-            particleSpawnTime[pp] = 0.0;
-            particleLifeTime[pp] = 0.0;
-            particleIDs[pp] = pp;
-        } */
-
         for(let ii = 0; ii < NUM_SHAPE; ii++){
             for(let jj = 0; jj  < 3; jj++){
                 let pp = jj + ii * 3;
@@ -148,8 +138,9 @@ export default class App {
             { name: 'a_lifetime',  itemSize: 1, data: particleLifeTime,  transformFeedbackVarying: 'v_lifetime' },
             { name: 'a_ID', itemSize: 1, data: particleIDs },
             { name: 'a_vertice', itemSize: 2, data : particleVertices},
-            { name: 'indices', indexArray: true, data: particleIndices },
+            // { name: 'indices', indexArray: true, data: particleIndices },
         ]);
+
 
         this.indiceLength = particleIndices.length;
     }
@@ -194,9 +185,17 @@ export default class App {
         this.programRenderer.updateVAO();
         this.programRenderer.updateVBO();
         this.programRenderer.beginTransformFeedback(gl.TRIANGLES );
+
+
         // this.programRenderer.gl.drawArrays(gl.TRIANGLES, 0, NUM_SHAPE * 3);
+
         // console.log(this.indiceLength);
-        gl.drawElements(gl.TRIANGLES, this.indiceLength, gl.UNSIGNED_SHORT, 0);
+        // this.indiceAttribute.bind();
+        // this.indiceAttribute.bind();
+        // console.log(this.indiceAttribute);
+        // gl.drawElements(gl.TRIANGLES, this.indiceLength, gl.UNSIGNED_SHORT, 0);
+        this.programRenderer.gl.drawArrays(gl.TRIANGLES, 0, NUM_SHAPE * 3);
+
         this.programRenderer.endTransformFeedback()
     }
 
