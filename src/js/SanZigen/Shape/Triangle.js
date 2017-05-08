@@ -6,7 +6,7 @@ import {Color} from "../math/Color";
 const glslify = require('glslify');
 
 export class Triangle extends Shape {
-    constructor(params){
+    constructor(params = {}){
         super({
             renderer: params.renderer,
             vertexShaderSource: glslify("./shaders/Triangle.shader.vert").trim(),
@@ -31,7 +31,7 @@ export class Triangle extends Shape {
 
         this._color = new Color();
         this.colorVector3 = new Vector3();
-        this.color = '#ff0000'|| params.color;
+        this.color = params.color || '#ff0000';
 
         this._createShape();
 

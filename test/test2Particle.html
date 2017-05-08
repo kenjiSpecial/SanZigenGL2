@@ -1,0 +1,143 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Particle</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="main.css">
+</head>
+<body>
+<div class="description">Rendering particles with ProgramRenderer with the transfromFeedback.</div>
+<script src="../dest/SanZigenGL2.js"></script>
+<script id="vertexShader" type="x-shader/x-vertex">
+#version 300 es
+#define POSITION_LOCATION 0
+#define VELOCITY_LOCATION 1
+#define SPAWNTIME_LOCATION 2
+#define LIFETIME_LOCATION 3
+#define ID_LOCATION 4
+precision highp float;
+precision highp int;
+precision highp sampler3D;
+uniform float u_time;
+uniform vec2 u_acceleration;
+layout(location = POSITION_LOCATION) in vec2 a_position;
+layout(location = VELOCITY_LOCATION) in vec2 a_velocity;
+layout(location = SPAWNTIME_LOCATION) in float a_spawntime;
+layout(location = LIFETIME_LOCATION) in float a_lifetime;
+layout(location = ID_LOCATION) in float a_ID;
+out vec2 v_position;
+out vec2 v_velocity;
+out float v_spawntime;
+out float v_lifetime;
+float rand(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+void main(){
+    if (a_spawntime == 0.0 || (u_time - a_spawntime > a_lifetime) || a_position.y < -0.5) {
+        // Generate a new particle
+        v_position = vec2(0.0, 0.0);
+        v_velocity = vec2(rand(vec2(a_ID, 0.0)) - 0.5, rand(vec2(a_ID, a_ID)));
+        v_spawntime = u_time;
+        v_lifetime = 5000.0;
+    } else {
+        v_velocity = a_velocity + 0.01 * u_acceleration;
+        v_position = a_position + 0.01 * v_velocity;
+        v_spawntime = a_spawntime;
+        v_lifetime = a_lifetime;
+    }
+    gl_Position = vec4(v_position, 0.0, 1.0);
+    gl_PointSize = 1.;
+}
+</script>
+<script id="fragmentShader" type="x-shader/x-fragment">
+#version 300 es
+precision highp float;
+precision highp int;
+uniform vec4 u_color;
+uniform float u_lifetime;
+out vec4 color;
+
+void main(){
+    color = u_color;
+}
+</script>
+<script>
+
+    var POSITION_LOCATION = 0;
+    var VELOCITY_LOCATION = 1;
+    var SPAWNTIME_LOCATION = 2;
+    var LIFETIME_LOCATION = 3;
+    var ID_LOCATION = 4;
+    var NUM_LOCATIONS = 5;
+
+    var NUM_PARTICLES = 1000;
+    var ACCELERATION = -1.0;
+
+    var renderer = new San.WebGLRenderer({antialias : true});
+    document.body.appendChild(renderer.domElement);
+    renderer.setSize( window.innerWidth, window.innerHeight);
+
+    var programRenderer = new San.ProgramRenderer({
+        renderer : renderer,
+        vertexShaderSource: document.getElementById('vertexShader').textContent.trim(),
+        fragmentShaderSource: document.getElementById('fragmentShader').textContent.trim(),
+        transformFeedbackVaryingArray : ['v_position', 'v_velocity', 'v_spawntime', 'v_lifetime']
+    });
+
+    var particlePosition = new Float32Array(NUM_PARTICLES * 2);
+    var particleVelocity = new Float32Array(NUM_PARTICLES * 2);
+    var particleSpawnTime = new Float32Array(NUM_PARTICLES);
+    var particleLifeTime = new Float32Array(NUM_PARTICLES);
+    var particleIDs = new Float32Array(NUM_PARTICLES);
+
+
+    for(let pp = 0; pp < NUM_PARTICLES; pp++){
+        particlePosition[pp * 2] = 0.0;
+        particlePosition[pp * 2 + 1] = 0.0;
+        particleVelocity[pp * 2] = 0.0;
+        particleVelocity[pp * 2 + 1] = 0.0;
+        particleSpawnTime[pp] = 0.0;
+        particleLifeTime[pp] = 0.0;
+        particleIDs[pp] = pp;
+    }
+
+    console.log(particlePosition.length);
+
+    programRenderer.initializeVBOs([
+        { name: 'a_position',  itemSize: 2, data: particlePosition,  transformFeedbackVarying: 'v_position' },
+        { name: 'a_velocity',  itemSize: 2, data: particleVelocity,  transformFeedbackVarying: 'v_velocity' },
+        { name: 'a_spawntime', itemSize: 1, data: particleSpawnTime, transformFeedbackVarying: 'v_spawntime' },
+        { name: 'a_lifetime',  itemSize: 1, data: particleLifeTime,  transformFeedbackVarying: 'v_lifetime' },
+        { name: 'a_ID', itemSize: 1, data: particleIDs }
+    ]);
+
+    for(var ii = 0; ii < 100; ii++)render();
+
+
+    function render(){
+//        var time = Date.now() - this.appStartTime;
+
+        var time = 10;
+        var gl = renderer.gl;
+        gl.clearColor(0, 0, 0, 1);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        console.log(programRenderer);
+
+        programRenderer.useProgram().bindTransformFeedback();
+
+        programRenderer.webGLProgram.uniforms['u_color'].set4f(0.0, 1.0, 1.0, 1.0);
+        programRenderer.webGLProgram.uniforms['u_acceleration'].set2f(0.0, -1.0);
+        programRenderer.webGLProgram.uniforms['u_time'].set1f(time);
+
+        programRenderer.updateVAO();
+        programRenderer.updateVBO();
+        programRenderer.beginTransformFeedback();
+        programRenderer.gl.drawArrays(gl.POINTS, 0, NUM_PARTICLES);
+        programRenderer.endTransformFeedback()
+    }
+
+</script>
+</body>
+</html>

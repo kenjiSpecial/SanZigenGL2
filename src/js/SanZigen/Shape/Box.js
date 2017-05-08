@@ -5,17 +5,23 @@ import {Color} from "../math/Color";
 
 const glslify = require('glslify');
 
-export class Circle extends Shape {
+export class Box extends Shape {
     constructor(params){
         super({
             renderer: params.renderer,
-            vertexShaderSource: glslify("./shaders/Circle.shader.vert").trim(),
-            fragmentShaderSource: glslify("./shaders/Circle.shader.frag").trim(),
+            vertexShaderSource: glslify("./shaders/Box.shader.vert").trim(),
+            fragmentShaderSource: glslify("./shaders/Box.shader.frag").trim(),
         });
 
         this.time = 0;
+        this.width = 100;
+        this.height = 100;
+        this.depth = 100;
+
         this.x = params.x ? params.x : 200;
         this.y = params.y ? params.y : 200;
+        this.z = params.z ? params.z : 200;
+
         this.rotation = 0;
 
         this.verticeNum = params.verticeNum || 100;
@@ -35,19 +41,41 @@ export class Circle extends Shape {
 
     _createShape(){
 
-        let indices = [];
-        for(let ii = 0; ii < this.verticeNum; ii++){
-            let curNum = ii % this.verticeNum;
-            let nextNum = (ii + 1) % this.verticeNum;
+        // xyz 3 pt
 
-            indices.push(0)
-            indices.push(curNum + 1);
-            indices.push(nextNum + 1);
-        };
+        this.vertices = new Float32Array(2 * 2 * 2 * 3);
+
+        for(let zz = 0; zz < 2; zz++){
+            let zPos = (zz - 1) * this.depth + this.depth / 2;
+            for(let xx = 0; xx < 2; xx++){
+                let xPos = (xx - 1) * this.width + this.width / 2;
+                for(let yy = 0; yy < 2; yy++){
+                    let yPos = (yy - 1) * this.height + this.height / 2;
+                    let num = (zz * 2 * 2 + xx * 2 + yy)
+                    this.vertices[3 * num] = xPos;
+                    this.vertices[3 * num + 1] = yPos;
+                    this.vertices[3 * num + 2] = zPos;
+                }
+            }
+        }
+
+        let indices = [0, 2, 1, // front left
+                       3, 1, 2, // front right
+                       1, 3, 5, // top left
+                       7, 5, 3, // top right
+                       2, 6, 3, // rightSide left
+                       7, 3, 6, // rightSide right
+                       0, 4, 1, // leftSide left
+                       5, 1, 4, // leftSide right
+                       0, 4, 2, // bottom left
+                       6, 4, 2, // bottom right
+                       4, 6, 5, // back left
+                       7, 5, 6  // back right
+        ];
 
 
         let shapeAttributes = {
-            positions : {name : 'aPosition', itemSize : 2, data: this.vertices},
+            positions : {name : 'aPosition', itemSize : 3, data: this.vertices},
             indices: {name: 'indices', indexArray: true, data: new Uint16Array(indices)},
         };
 
@@ -69,7 +97,7 @@ export class Circle extends Shape {
 
 
     _updateUniforms(){
-        this.uniforms['uPosition'].set2f(this.x, this.y);
+        this.uniforms['uPosition'].set3f(this.x, this.y, this.z);
         this.uniforms['uWindow'].set2f(window.innerWidth, window.innerHeight);
         this.uniforms['uColor'].set3f(this._color.r, this._color.g, this._color.b);
     }
@@ -77,8 +105,7 @@ export class Circle extends Shape {
     update(dt = 1/60){
         this.time += dt;
 
-        // this.x = window.innerWidth/2; //window.innerWidth/2 + 100 * Math.cos(this.time );
-        // this.y = window.innerHeight/2; //window.innerHeight/2 + 100 * Math.sin(this.time );
+
 
         return this
     }
@@ -100,19 +127,6 @@ export class Circle extends Shape {
     set color(value){
         this._colorStr = value;
         this._color.setStyle(this._colorStr);
-    }
-    get color(){
-        return this._colorStr;
-    }
-    set rad(value){
-        this._rad = value;
-        for(let ii = 0; ii < this.verticeNum; ii++){
-            this.vertices[(ii + 1) * 2 + 0] = (this.rad * Math.cos(ii / this.verticeNum * 2 * Math.PI));
-            this.vertices[(ii + 1)* 2 + 1] = (this.rad * Math.sin(ii / this.verticeNum * 2 * Math.PI))
-        }
-    }
-    get rad(){
-        return this._rad;
     }
 
 }

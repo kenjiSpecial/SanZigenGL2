@@ -7,7 +7,7 @@
 // import App from './apps/AppTriangle';
 // import App from './apps/AppCircle';
 // import App from './apps/AppRectangles';
-import App from './apps/AppFeedbackTest03';
+import App from './apps/AppBox';
 
 let app;
 

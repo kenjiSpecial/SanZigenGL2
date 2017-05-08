@@ -56,7 +56,7 @@ void main()
         v_lifetime = a_lifetime;
     }
     gl_Position = vec4(v_position, 0.0, 1.0);
-    gl_PointSize = 20.0;
+    gl_PointSize = 1.0;
 }
 `;
 
@@ -100,7 +100,6 @@ export default class App {
 
 
         let numberOfUniforms = this.webglProgram.gl.getProgramParameter(this.webglProgram.program, this.webglProgram.gl.ACTIVE_UNIFORMS);
-        // console.log(numberOfUniforms);
         this.webglProgram.uniforms = {};
 
         for(let ii = 0; ii < numberOfUniforms; ii++){

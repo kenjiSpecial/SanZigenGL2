@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Circle</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="main.css">
+</head>
+
+<body>
+
+<div class="description">Rnedering a cricle with Circle Class.</div>
+<script src="../dest/SanZigenGL2.js"></script>
+<script>
+    var renderer = new San.WebGLRenderer({antialias : true});
+    document.body.appendChild(renderer.domElement);
+    renderer.setSize( window.innerWidth, window.innerHeight);
+
+    var size = 50;
+
+    var circle  = new San.Circle({
+        renderer : renderer,
+        x : window.innerWidth/2,
+        y : window.innerHeight/2,
+        rad : 60,
+        color : '#ffffff'
+    });
+
+
+    render();
+
+    function render(){
+        var gl = renderer.gl;
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        circle.update().draw();
+    }
+
+
+</script>
+</body>
+</html>

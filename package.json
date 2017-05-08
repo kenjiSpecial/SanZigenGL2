@@ -12,6 +12,7 @@
   "dependencies": {
     "cheerio": "^0.22.0",
     "chrome-remote-interface": "^0.22.0",
+    "commander": "^2.9.0",
     "connect": "^3.6.1",
     "dat.gui": "github:dataarts/dat.gui",
     "eventemitter3": "^2.0.2",
@@ -37,6 +38,7 @@
     "gulp-streamify": "*",
     "gulp-uglify": "*",
     "jest": "^19.0.2",
+    "karma-chrome-launcher": "^2.1.1",
     "minimist": "*",
     "node-reset-scss": "*",
     "vinyl-source-stream": "*"
@@ -48,7 +50,8 @@
     "build": "gulp bundle --production",
     "public": "gulp bundle --production --public",
     "library": "gulp library",
-    "chrome": "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary --remote-debugging-port=9222 --window-size=600,414"
+    "chrome" : "node ./node/openChrome.js",
+    "screenShotTest" : "node ./node/test.js"
   },
   "keywords": [
     "budo",

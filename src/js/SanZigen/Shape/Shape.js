@@ -34,9 +34,6 @@ export  class Shape extends EventEmitter{
             this.uniforms[uniformInfo.name] = new Uniform({ uniformInfo : uniformInfo, uniformHandle : uniformHandle, gl: this.gl });
         }
     }
-
-
-
     initializeAttributes(attributes){
         for(let key in attributes){
             this.attributes[key] = new Attribute({
@@ -49,6 +46,7 @@ export  class Shape extends EventEmitter{
             });
             this.attributes[key].bind();
         }
+
     }
     draw(){
         this.renderer.gl.useProgram(this.program);

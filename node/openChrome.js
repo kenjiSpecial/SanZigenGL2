@@ -54,13 +54,14 @@ function gettemplate(){
 
 let launcher;
 function launchChrome(headless = true) {
+    let windowWid = parseInt(600 * 600/584);
     launcher = new ChromeLauncher({
         port: 9222,
         autoSelectChrome: true, // False to manually select which Chrome install.
         additionalFlags: [
-            '--window-size=800,600',
+            `--window-size=${windowWid},433`, // 414
             // '--disable-gpu',
-            headless ? '--headless' : ''
+            '--headless'
         ]
     });
 
@@ -72,47 +73,7 @@ function launchChrome(headless = true) {
         });
 }
 
-// CDP(async (client) => {
-//     const {Page} = client;
-//     try {
-//         await Page.enable();
-//         await Page.navigate({url: 'https://github.com'});
-//         await Page.loadEventFired();
-//         const {data} = await Page.captureScreenshot();
-//         fs.writeFileSync('scrot.png', Buffer.from(data, 'base64'));
-//     } catch (err) {
-//         console.error(err);
-//     }
-//     await client.close();
-// }).on('error', (err) => {
-//     console.error(err);
-// });
-
-// return;
-
-launchChrome().then(launcher => {
-    console.log('launch?');
-    CDP(async (client) => {
-        const {Page, Network} = client;
-        try {
-            await Network.enable();
-            await Page.enable();
-            console.log('enable?');
-            await Page.navigate({url: 'https://github.com'});
-            console.log('naviage');
-            await Page.loadEventFired();
-            console.log('loadEventFired');
-            const {data} = await Page.captureScreenshot();
-            fs.writeFileSync('scrot.png', Buffer.from(data, 'base64'));
-            console.log('done');
-        } catch (err) {
-            console.error(err);
-        }
-        await client.close();
-    }).on('error', (err) => {
-        console.error(err);
-    });
-});
+launchChrome(true).then(launcher => {});
 
 function exitHandler(options, err) {
     if (options.cleanup) console.log('clean');
