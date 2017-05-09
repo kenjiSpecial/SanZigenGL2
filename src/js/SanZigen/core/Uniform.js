@@ -106,6 +106,57 @@ export class Uniform {
         this.cache = {x: value0, y: value1, z: value2, w: value3};
         this.gl.uniform4f(this.uniformLocation, value0, value1, value2, value3);
     }
+    setMatrix(arrVal){
+        if(arrVal.length !== 4 && arrVal.length !== 9 && arrVal.length !== 16){
+            console.error(`we don\'t support: array length ${arrVal.length}`);
+            return;
+        }
+        if(this.cache === arrVal) return;
+
+        this.cache = arrVal;
+
+        if(arrVal.length === 4){
+            this.gl.uniformMatrix2fv( this.uniformLocation, false, arrVal);
+        }else if(arrVal.length === 9){
+            this.gl.uniformMatrix3fv( this.uniformLocation, false, arrVal);
+        }else if(arrVal.length === 16){
+            this.gl.uniformMatrix4fv( this.uniformLocation, false, arrVal);
+        }
+    }
+    setMatrix4(arrVal){
+        if(arrVal !== 16){
+            console.error(`we need 16 items in array. we don\'t support: array length ${arrVal.length}`);
+            return;
+        }
+
+        if(this.cache === arrVal) return;
+        this.cache = arrVal;
+
+        this.gl.uniformMatrix4fv( this.uniformLocation, false, arrVal);
+    }
+    setMatrix3(arrVal){
+        if(arrVal !== 9){
+            console.error(`we need 9 items in array. we don\'t support: array length ${arrVal.length}`);
+            return;
+        }
+
+        if(this.cache === arrVal) return;
+        this.cache = arrVal;
+
+        this.gl.uniformMatrix3fv(this.uniformLocation, false, arrVal);
+    }
+    setMatrix2(arrVal){
+        if(arrVal !== 4){
+            console.error(`we need 4 items in array. we don\'t support: array length ${arrVal.length}`);
+            return;
+        }
+
+        if(this.cache === arrVal) return;
+        this.cache = arrVal;
+
+        this.gl.uniformMatrix2fv(this.uniformLocation, false, arrVal);
+    }
+
     set(value){
         console.log(arguments.length);
         if(this.cache === value) return;
