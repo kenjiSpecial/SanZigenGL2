@@ -124,7 +124,7 @@ export class Uniform {
         }
     }
     setMatrix4(arrVal){
-        if(arrVal !== 16){
+        if(arrVal.length !== 16){
             console.error(`we need 16 items in array. we don\'t support: array length ${arrVal.length}`);
             return;
         }
@@ -135,7 +135,7 @@ export class Uniform {
         this.gl.uniformMatrix4fv( this.uniformLocation, false, arrVal);
     }
     setMatrix3(arrVal){
-        if(arrVal !== 9){
+        if(arrVal.length !== 9){
             console.error(`we need 9 items in array. we don\'t support: array length ${arrVal.length}`);
             return;
         }
@@ -146,7 +146,7 @@ export class Uniform {
         this.gl.uniformMatrix3fv(this.uniformLocation, false, arrVal);
     }
     setMatrix2(arrVal){
-        if(arrVal !== 4){
+        if(arrVal.length !== 4){
             console.error(`we need 4 items in array. we don\'t support: array length ${arrVal.length}`);
             return;
         }

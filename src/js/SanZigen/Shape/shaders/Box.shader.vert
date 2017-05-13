@@ -1,16 +1,17 @@
 #version 300 es
 
-in vec2 aPosition;
+in vec3 aPosition;
 
-uniform vec2 uWindow;
 uniform vec3 uPosition;
-uniform float uDepth;
+uniform mat4 projectionMatrix;
 
 void main(){
 
-    float xPos =   ( aPosition.x + uPosition.x ) / uWindow.x * 2.0 - 1.0;
-    float yPos = - ( aPosition.y + uPosition.y ) / uWindow.y * 2.0 + 1.0;
-    float zPos = uDepth;
+    float xPos =   ( aPosition.x); // + uPosition.x);
+    float yPos =  ( aPosition.y); //+ uPosition.y );
+    float zPos = aPosition.z + uPosition.z; // + uPosition.z;
 
-    gl_Position = vec4(xPos, yPos, zPos, 1.0);
+    vec4 outputVec = projectionMatrix * vec4(xPos, yPos, zPos, 1.0);
+
+    gl_Position = outputVec; //vec4(aPosition.x, aPosition.y, 0.0, 1.0);
 }

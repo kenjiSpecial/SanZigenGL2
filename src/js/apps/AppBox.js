@@ -24,12 +24,14 @@ export default class App {
 
     _initializeShape(params){
         this.box = new Box({renderer: this.renderer});
+        this.box.setProjectionMatrix(60, window.innerWidth / window.innerHeight, 1, 10000);
     }
 
     _addGui(){
         this.gui = new dat.GUI();
-        this.playAndStopGui = this.gui.add(this, '_playAndStop').name('pause')
-
+        this.playAndStopGui = this.gui.add(this, '_playAndStop').name('pause');
+        this.positionFolder = this.gui.addFolder('uPosition');
+        this.positionFolder.add(this.box, 'z', -1000, 100);
     }
     _onUpdateRad(){
         this.circle.updateRadius();

@@ -2,6 +2,8 @@ import {Shape} from "./Shape";
 import {Vector2} from "../math/Vector2"
 import {Vector3} from "../math/Vector3"
 import {Color} from "../math/Color";
+import {Euler} from '../math/Euler';
+import {Matrix4} from '../math/Matrix4';
 
 const glslify = require('glslify');
 
@@ -20,23 +22,59 @@ export class Box extends Shape {
 
         this.x = params.x ? params.x : 200;
         this.y = params.y ? params.y : 200;
-        this.z = params.z ? params.z : 200;
+        this.z = params.z ? params.z : -500;
 
         this.rotation = 0;
 
         this.verticeNum = params.verticeNum || 100;
-        this.vertices = new Float32Array( (this.verticeNum + 1) * 2 );
-        this.vertices[0] = 0; this.vertices[1] = 0;
+        this.vertices = new Float32Array((this.verticeNum + 1) * 2);
+        this.vertices[0] = 0;
+        this.vertices[1] = 0;
 
-        this.rad = params.rad || 100;
+        this.rad = params.rad || 1;
 
         this._color = new Color();
         this.colorVector3 = new Vector3();
-        this.color = '#ff0000'|| params.color;
+        this.color = '#ff0000' || params.color;
 
         this.indiceLength = this._createShape();
 
+        this.rotation = new Euler();
+
+        // this.rotationMatrix = new Matrix4();
+
+        this.projectionMatrix = new Matrix4();
+        this.projectionMatrixArray = new Float32Array(this.projectionMatrix.toArray());
+
         this.resize();
+    }
+
+    // https://github.com/mrdoob/three.js/blob/master/src/cameras/PerspectiveCamera.js
+    setProjectionMatrix(fov, aspect, near, far){
+        this.near = near;
+        this.far = far;
+        this.fov = fov;
+        this.aspect = aspect;
+
+        let top = this.near * Math.tan(0.5 * this.fov / 180 * Math.PI);
+        let height = 2 * top;
+        let width = this.aspect * height;
+        let left = -0.5 * width;
+
+        this.projectionMatrix.makeFrustum(
+            left, left + width, top - height, top, near, far
+        );
+        this.projectionMatrixArray = new Float32Array(this.projectionMatrix.toArray());
+        console.log(this.projectionMatrixArray);
+        console.log(this.projectionMatrixArray.length);
+
+        let test = new Vector3(100, 100, 100)
+        let tee = test.applyMatrix4(this.projectionMatrix);
+        let test2 = new Vector3(-100, -100, -100);
+        let tee2 = test2.applyMatrix4(this.projectionMatrix);
+        console.log(tee);
+        console.log(tee2);
+
     }
 
     _createShape(){
@@ -60,22 +98,22 @@ export class Box extends Shape {
         }
 
         let indices = [0, 2, 1, // front left
-                       3, 1, 2, // front right
-                       1, 3, 5, // top left
-                       7, 5, 3, // top right
-                       2, 6, 3, // rightSide left
-                       7, 3, 6, // rightSide right
-                       0, 4, 1, // leftSide left
-                       5, 1, 4, // leftSide right
-                       0, 4, 2, // bottom left
-                       6, 4, 2, // bottom right
-                       4, 6, 5, // back left
-                       7, 5, 6  // back right
+            3, 1, 2, // front right
+            1, 3, 5, // top left
+            7, 5, 3, // top right
+            2, 6, 3, // rightSide left
+            7, 3, 6, // rightSide right
+            0, 4, 1, // leftSide left
+            5, 1, 4, // leftSide right
+            0, 4, 2, // bottom left
+            6, 4, 2, // bottom right
+            4, 6, 5, // back left
+            7, 5, 6  // back right
         ];
 
 
         let shapeAttributes = {
-            positions : {name : 'aPosition', itemSize : 3, data: this.vertices},
+            positions: {name: 'aPosition', itemSize: 3, data: this.vertices},
             indices: {name: 'indices', indexArray: true, data: new Uint16Array(indices)},
         };
 
@@ -92,19 +130,17 @@ export class Box extends Shape {
 
         this.gl.bindVertexArray(this.shapeVao);
         this.attributes['positions'].updateData(this.vertices);
-
     }
 
 
     _updateUniforms(){
         this.uniforms['uPosition'].set3f(this.x, this.y, this.z);
-        this.uniforms['uWindow'].set2f(window.innerWidth, window.innerHeight);
         this.uniforms['uColor'].set3f(this._color.r, this._color.g, this._color.b);
+        this.uniforms['projectionMatrix'].setMatrix4(this.projectionMatrixArray);
     }
 
-    update(dt = 1/60){
+    update(dt = 1 / 60){
         this.time += dt;
-
 
 
         return this
@@ -124,6 +160,7 @@ export class Box extends Shape {
     resize(){
 
     }
+
     set color(value){
         this._colorStr = value;
         this._color.setStyle(this._colorStr);

@@ -10,6 +10,7 @@
     "url": "https://github.com/mattdesl"
   },
   "dependencies": {
+    "budo": "^10.0.3",
     "cheerio": "^0.22.0",
     "chrome-remote-interface": "^0.22.0",
     "commander": "^2.9.0",
@@ -50,8 +51,8 @@
     "build": "gulp bundle --production",
     "public": "gulp bundle --production --public",
     "library": "gulp library",
-    "chrome" : "node ./node/openChrome.js",
-    "screenShotTest" : "node ./node/test.js"
+    "chrome": "node ./node/openChrome.js",
+    "screenShotTest": "node ./node/test.js"
   },
   "keywords": [
     "budo",
