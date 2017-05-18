@@ -3,6 +3,8 @@ import {Vector2} from "../math/Vector2"
 import {Vector3} from "../math/Vector3"
 import {Color} from "../math/Color";
 import {Euler} from '../math/Euler';
+import {Quaternion} from '../math/Quaternion';
+import {PerspectiveCamera} from '../camera/PerspectiveCamera';
 import {Matrix4} from '../math/Matrix4';
 
 const glslify = require('glslify');
@@ -15,16 +17,20 @@ export class Box extends Shape {
             fragmentShaderSource: glslify("./shaders/Box.shader.frag").trim(),
         });
 
+        this._onChangeRotation = this._onChangeRotation.bind(this);
+
         this.time = 0;
         this.width = 100;
         this.height = 100;
         this.depth = 100;
 
-        this.x = params.x ? params.x : 200;
-        this.y = params.y ? params.y : 200;
-        this.z = params.z ? params.z : -500;
+        let x = params.x ? params.x : 0;
+        let y = params.y ? params.y : 0;
+        let z = params.z ? params.z : -500;
 
-        this.rotation = 0;
+        this.position = params.position ? params.position : new Vector3(x, y, z);
+        this.scale = params.scale ? params.scale : new Vector3(1, 1, 1);
+
 
         this.verticeNum = params.verticeNum || 100;
         this.vertices = new Float32Array((this.verticeNum + 1) * 2);
@@ -40,14 +46,43 @@ export class Box extends Shape {
         this.indiceLength = this._createShape();
 
         this.rotation = new Euler();
+        this.rotationQuaternion = new Quaternion();
+        this.rotationMat = new Matrix4();
+        this.rotation.onChange(this._onChangeRotation);
 
-        // this.rotationMatrix = new Matrix4();
+
+        this.modelMatrix = new Matrix4();
+        this.updateModelMatrix();
+
 
         this.projectionMatrix = new Matrix4();
         this.projectionMatrixArray = new Float32Array(this.projectionMatrix.toArray());
 
+        this.viewMatrix = new Matrix4();
+        this.viewMatrix.identity();
+        this.viewMatrixArray = new Float32Array(this.viewMatrix.toArray());
+
         this.resize();
     }
+
+    _onChangeRotation(){
+        this.rotationQuaternion.setFromEuler(this.rotation);
+        this.updateModelMatrix();
+    }
+
+    updateModelMatrix(){
+        this.modelMatrix.compose(this.position, this.rotationQuaternion, this.scale);
+        this.modelMatrixArray = new Float32Array(this.modelMatrix.toArray());
+    }
+
+    updateViewMatrix(value){
+        if( value instanceof Matrix4 || value instanceof PerspectiveCamera ){
+            this.viewMatrixArray = new Float32Array(value.toArray());
+        }else{
+            console.warn('[Box:updateViewMatrix]value you pass is not matched, you need to pass class of Matrix4 or Camera', value);
+        }
+    }
+
 
     // https://github.com/mrdoob/three.js/blob/master/src/cameras/PerspectiveCamera.js
     setProjectionMatrix(fov, aspect, near, far){
@@ -65,20 +100,9 @@ export class Box extends Shape {
             left, left + width, top - height, top, near, far
         );
         this.projectionMatrixArray = new Float32Array(this.projectionMatrix.toArray());
-        console.log(this.projectionMatrixArray);
-        console.log(this.projectionMatrixArray.length);
-
-        let test = new Vector3(100, 100, 100)
-        let tee = test.applyMatrix4(this.projectionMatrix);
-        let test2 = new Vector3(-100, -100, -100);
-        let tee2 = test2.applyMatrix4(this.projectionMatrix);
-        console.log(tee);
-        console.log(tee2);
-
     }
 
     _createShape(){
-
         // xyz 3 pt
 
         this.vertices = new Float32Array(2 * 2 * 2 * 3);
@@ -134,9 +158,10 @@ export class Box extends Shape {
 
 
     _updateUniforms(){
-        this.uniforms['uPosition'].set3f(this.x, this.y, this.z);
         this.uniforms['uColor'].set3f(this._color.r, this._color.g, this._color.b);
         this.uniforms['projectionMatrix'].setMatrix4(this.projectionMatrixArray);
+        this.uniforms['modelMatrix'].setMatrix4(this.modelMatrixArray);
+        this.uniforms['viewMatrix'].setMatrix4(this.viewMatrixArray);
     }
 
     update(dt = 1 / 60){

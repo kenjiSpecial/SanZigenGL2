@@ -7,7 +7,7 @@ export class Uniform {
         if(params.uniformHandle){
             console.warn('[Uniform.js]: params.uniformHandle is not used anymore. use params.uniformLocation');
         }
-        this.uniformLocation = params.uniformHandle || params.uniformLocation;
+        this.uniformLocation = params.uniformLocation;
         this.gl = params.gl;
 
         let UniformClass;

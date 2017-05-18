@@ -1,6 +1,6 @@
 'use strict';
 
-import { WebGLRenderer, Box, Vector2 } from 'SanZigen'
+import { WebGLRenderer, Box, Vector2, Vector3, Matrix4 } from 'SanZigen'
 
 const TweenMax = require('gsap');
 const Stats = require('stats.js');
@@ -13,7 +13,7 @@ export default class App {
 
 
         this._initializeShape(params);
-
+        this._initializeCamera();
 
         this._addGui();
         this._addStats();
@@ -27,11 +27,41 @@ export default class App {
         this.box.setProjectionMatrix(60, window.innerWidth / window.innerHeight, 1, 10000);
     }
 
+    _initializeCamera(){
+        this.cameraPosition = new Vector3();
+        this.cameraPosition.x = 100;
+
+        this.cameraMatrix = new Matrix4();
+        this.cameraMatrix.identity();
+        this.cameraInverseMatrix = new Matrix4();
+
+        this.isLookAt = true;
+
+        this._onChangeCameraPosition();
+    }
+
     _addGui(){
         this.gui = new dat.GUI();
         this.playAndStopGui = this.gui.add(this, '_playAndStop').name('pause');
         this.positionFolder = this.gui.addFolder('uPosition');
-        this.positionFolder.add(this.box, 'z', -1000, 100);
+        this.positionFolder.add(this.box.position, 'z', -1000, 100).onChange(()=>{ this.box.updateModelMatrix(); });
+        this.rotationFolder = this.gui.addFolder('rotation');
+        this.rotationFolder.add(this.box.rotation, 'y', -Math.PI, Math.PI).step(0.01);
+        this.cameraPositionFolder = this.gui.addFolder('camera');
+        this.cameraPositionFolder.add(this.cameraPosition, 'x', -200, 200).onChange( () => this._onChangeCameraPosition() );
+        this.cameraPositionFolder.add(this.cameraPosition, 'y', -200, 200).onChange( () => this._onChangeCameraPosition() );
+        this.cameraPositionFolder.add(this.cameraPosition, 'z', -200, 200).onChange( () => this._onChangeCameraPosition() );
+        this.cameraPositionFolder.add(this, 'isLookAt').onChange( () => this._onChangeCameraPosition() );
+
+    }
+    _onChangeCameraPosition(){
+        this.cameraMatrix.makeTranslation(this.cameraPosition.x, this.cameraPosition.y, this.cameraPosition.z);
+        if(this.isLookAt){
+            this.cameraMatrix.lookAt(this.cameraPosition, this.box.position, new Vector3(0, 1, 0))
+        }
+        this.cameraInverseMatrix.getInverse(this.cameraMatrix);
+
+        this.box.updateViewMatrix(this.cameraInverseMatrix);
     }
     _onUpdateRad(){
         this.circle.updateRadius();
@@ -55,6 +85,7 @@ export default class App {
 
         gl.clearColor(0, 0, 0, 1);
         gl.clear(gl.COLOR_BUFFER_BIT);
+
 
         this.box.update().draw();
 

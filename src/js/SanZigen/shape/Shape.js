@@ -30,8 +30,8 @@ export  class Shape extends EventEmitter{
 
         for(let ii = 0; ii < numUniforms; ii++){
             let uniformInfo = this.gl.getActiveUniform(this.program, ii);
-            let uniformHandle = this.gl.getUniformLocation(this.program, uniformInfo.name);
-            this.uniforms[uniformInfo.name] = new Uniform({ uniformInfo : uniformInfo, uniformHandle : uniformHandle, gl: this.gl });
+            let uniformLocation = this.gl.getUniformLocation(this.program, uniformInfo.name);
+            this.uniforms[uniformInfo.name] = new Uniform({ uniformInfo : uniformInfo, uniformLocation : uniformLocation, gl: this.gl });
         }
     }
     initializeAttributes(attributes){
