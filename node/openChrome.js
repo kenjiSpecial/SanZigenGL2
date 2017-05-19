@@ -61,7 +61,7 @@ function launchChrome(headless = true) {
         additionalFlags: [
             `--window-size=${windowWid},433`, // 414
             // '--disable-gpu',
-            '--headless'
+            // '--headless'
         ]
     });
 
@@ -73,7 +73,9 @@ function launchChrome(headless = true) {
         });
 }
 
-launchChrome(true).then(launcher => {});
+launchChrome(true).then(launcher => {
+    console.log('launcher');
+});
 
 function exitHandler(options, err) {
     if (options.cleanup) console.log('clean');

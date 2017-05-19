@@ -24,7 +24,7 @@ export default class App {
 
     _initializeShape(params){
         this.box = new Box({renderer: this.renderer});
-        this.box.setProjectionMatrix(60, window.innerWidth / window.innerHeight, 1, 10000);
+        this.box.setProjectionMatrix(60, window.innerWidth / window.innerHeight, 1, 1000);
     }
 
     _initializeCamera(){

@@ -52,7 +52,8 @@
     "public": "gulp bundle --production --public",
     "library": "gulp library",
     "chrome": "node ./node/openChrome.js",
-    "screenShotTest": "node ./node/test.js"
+    "screenShotTest": "node ./node/test.js",
+    "createTemplate" : "node ./node/openChrome.js"
   },
   "keywords": [
     "budo",

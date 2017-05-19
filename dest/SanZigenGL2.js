@@ -324,6 +324,42 @@ module.exports = function(strings) {
 }
 
 },{}],3:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.PerspectiveCamera = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Matrix = require('../math/Matrix4');
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+// perspective camera
+var PerspectiveCamera = function () {
+    function PerspectiveCamera() {
+        _classCallCheck(this, PerspectiveCamera);
+
+        this.projectionMatrix = new _Matrix.Matrix4();
+    }
+
+    _createClass(PerspectiveCamera, [{
+        key: 'setProjectionMatrix',
+        value: function setProjectionMatrix(fov, aspect, near, far) {
+            this.near = near;this.far = far;this.fov = fov;this.aspect = aspect;
+
+            // let top =
+        }
+    }]);
+
+    return PerspectiveCamera;
+}();
+
+exports.PerspectiveCamera = PerspectiveCamera;
+
+},{"../math/Matrix4":14}],4:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -417,7 +453,7 @@ var Attribute = exports.Attribute = function () {
     return Attribute;
 }();
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -489,7 +525,7 @@ Object.assign(Clock.prototype, {
 
 exports.Clock = Clock;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -659,7 +695,7 @@ var ProgramRenderer = exports.ProgramRenderer = function (_EventEmitter) {
     return ProgramRenderer;
 }(EventEmitter);
 
-},{"../renderers/webgl/WebGLProgram":17,"./Attribute":3,"./Uniform":7,"eventemitter3":1}],6:[function(require,module,exports){
+},{"../renderers/webgl/WebGLProgram":19,"./Attribute":4,"./Uniform":8,"eventemitter3":1}],7:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -719,7 +755,7 @@ var TransformFeedback = exports.TransformFeedback = function () {
     return TransformFeedback;
 }();
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -739,7 +775,7 @@ var Uniform = exports.Uniform = function () {
         if (params.uniformHandle) {
             console.warn('[Uniform.js]: params.uniformHandle is not used anymore. use params.uniformLocation');
         }
-        this.uniformLocation = params.uniformHandle || params.uniformLocation;
+        this.uniformLocation = params.uniformLocation;
         this.gl = params.gl;
 
         var UniformClass = void 0;
@@ -847,6 +883,64 @@ var Uniform = exports.Uniform = function () {
             this.gl.uniform4f(this.uniformLocation, value0, value1, value2, value3);
         }
     }, {
+        key: "setMatrix",
+        value: function setMatrix(arrVal) {
+            if (arrVal.length !== 4 && arrVal.length !== 9 && arrVal.length !== 16) {
+                console.error("we don't support: array length " + arrVal.length);
+                return;
+            }
+            if (this.cache === arrVal) return;
+
+            this.cache = arrVal;
+
+            if (arrVal.length === 4) {
+                this.gl.uniformMatrix2fv(this.uniformLocation, false, arrVal);
+            } else if (arrVal.length === 9) {
+                this.gl.uniformMatrix3fv(this.uniformLocation, false, arrVal);
+            } else if (arrVal.length === 16) {
+                this.gl.uniformMatrix4fv(this.uniformLocation, false, arrVal);
+            }
+        }
+    }, {
+        key: "setMatrix4",
+        value: function setMatrix4(arrVal) {
+            if (arrVal.length !== 16) {
+                console.error("we need 16 items in array. we don't support: array length " + arrVal.length);
+                return;
+            }
+
+            if (this.cache === arrVal) return;
+            this.cache = arrVal;
+
+            this.gl.uniformMatrix4fv(this.uniformLocation, false, arrVal);
+        }
+    }, {
+        key: "setMatrix3",
+        value: function setMatrix3(arrVal) {
+            if (arrVal.length !== 9) {
+                console.error("we need 9 items in array. we don't support: array length " + arrVal.length);
+                return;
+            }
+
+            if (this.cache === arrVal) return;
+            this.cache = arrVal;
+
+            this.gl.uniformMatrix3fv(this.uniformLocation, false, arrVal);
+        }
+    }, {
+        key: "setMatrix2",
+        value: function setMatrix2(arrVal) {
+            if (arrVal.length !== 4) {
+                console.error("we need 4 items in array. we don't support: array length " + arrVal.length);
+                return;
+            }
+
+            if (this.cache === arrVal) return;
+            this.cache = arrVal;
+
+            this.gl.uniformMatrix2fv(this.uniformLocation, false, arrVal);
+        }
+    }, {
         key: "set",
         value: function set(value) {
             console.log(arguments.length);
@@ -881,7 +975,7 @@ var Uniform = exports.Uniform = function () {
     return Uniform;
 }();
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -978,6 +1072,24 @@ Object.defineProperty(exports, 'Vector2', {
   }
 });
 
+var _Vector2 = require('./math/Vector3');
+
+Object.defineProperty(exports, 'Vector3', {
+  enumerable: true,
+  get: function get() {
+    return _Vector2.Vector3;
+  }
+});
+
+var _Matrix = require('./math/Matrix4');
+
+Object.defineProperty(exports, 'Matrix4', {
+  enumerable: true,
+  get: function get() {
+    return _Matrix.Matrix4;
+  }
+});
+
 var _Shape = require('./shape/Shape');
 
 Object.defineProperty(exports, 'Shape', {
@@ -1014,12 +1126,21 @@ Object.defineProperty(exports, 'Rectangle', {
   }
 });
 
-},{"./core/Attribute":3,"./core/Clock":4,"./core/ProgramRenderer":5,"./core/TransformFeedback":6,"./core/Uniform":7,"./math/Math":11,"./math/Vector2":14,"./renderers/WebGLRenderer":16,"./renderers/webgl/WebGLProgram":17,"./renderers/webgl/WebGLShader":18,"./shape/Circle":19,"./shape/Rectangle":20,"./shape/Shape":21,"./shape/Triangle":22}],9:[function(require,module,exports){
+var _Box = require('./shape/Box');
+
+Object.defineProperty(exports, 'Box', {
+  enumerable: true,
+  get: function get() {
+    return _Box.Box;
+  }
+});
+
+},{"./core/Attribute":4,"./core/Clock":5,"./core/ProgramRenderer":6,"./core/TransformFeedback":7,"./core/Uniform":8,"./math/Math":13,"./math/Matrix4":14,"./math/Vector2":16,"./math/Vector3":17,"./renderers/WebGLRenderer":18,"./renderers/webgl/WebGLProgram":19,"./renderers/webgl/WebGLShader":20,"./shape/Box":21,"./shape/Circle":22,"./shape/Rectangle":23,"./shape/Shape":24,"./shape/Triangle":25}],10:[function(require,module,exports){
 'use strict';
 
 window.San = require('./index');
 
-},{"./index":8}],10:[function(require,module,exports){
+},{"./index":9}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1507,7 +1628,316 @@ var ColorKeywords = { 'aliceblue': 0xF0F8FF, 'antiquewhite': 0xFAEBD7, 'aqua': 0
 
 exports.Color = Color;
 
-},{"./Math":11}],11:[function(require,module,exports){
+},{"./Math":13}],12:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+		value: true
+});
+exports.Euler = undefined;
+
+var _Quaternion = require('./Quaternion');
+
+var _Vector = require('./Vector3');
+
+var _Matrix = require('./Matrix4');
+
+var _Math2 = require('./Math');
+
+/**
+ * @author mrdoob / http://mrdoob.com/
+ * @author WestLangley / http://github.com/WestLangley
+ * @author bhouston / http://clara.io
+ */
+
+function Euler(x, y, z, order) {
+
+		this._x = x || 0;
+		this._y = y || 0;
+		this._z = z || 0;
+		this._order = order || Euler.DefaultOrder;
+}
+
+Euler.RotationOrders = ['XYZ', 'YZX', 'ZXY', 'XZY', 'YXZ', 'ZYX'];
+
+Euler.DefaultOrder = 'XYZ';
+
+Euler.prototype = {
+
+		constructor: Euler,
+
+		isEuler: true,
+
+		get x() {
+
+				return this._x;
+		},
+
+		set x(value) {
+
+				this._x = value;
+				this.onChangeCallback();
+		},
+
+		get y() {
+
+				return this._y;
+		},
+
+		set y(value) {
+
+				this._y = value;
+				this.onChangeCallback();
+		},
+
+		get z() {
+
+				return this._z;
+		},
+
+		set z(value) {
+
+				this._z = value;
+				this.onChangeCallback();
+		},
+
+		get order() {
+
+				return this._order;
+		},
+
+		set order(value) {
+
+				this._order = value;
+				this.onChangeCallback();
+		},
+
+		set: function set(x, y, z, order) {
+
+				this._x = x;
+				this._y = y;
+				this._z = z;
+				this._order = order || this._order;
+
+				this.onChangeCallback();
+
+				return this;
+		},
+
+		clone: function clone() {
+
+				return new this.constructor(this._x, this._y, this._z, this._order);
+		},
+
+		copy: function copy(euler) {
+
+				this._x = euler._x;
+				this._y = euler._y;
+				this._z = euler._z;
+				this._order = euler._order;
+
+				this.onChangeCallback();
+
+				return this;
+		},
+
+		setFromRotationMatrix: function setFromRotationMatrix(m, order, update) {
+
+				var clamp = _Math2._Math.clamp;
+
+				// assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
+
+				var te = m.elements;
+				var m11 = te[0],
+				    m12 = te[4],
+				    m13 = te[8];
+				var m21 = te[1],
+				    m22 = te[5],
+				    m23 = te[9];
+				var m31 = te[2],
+				    m32 = te[6],
+				    m33 = te[10];
+
+				order = order || this._order;
+
+				if (order === 'XYZ') {
+
+						this._y = Math.asin(clamp(m13, -1, 1));
+
+						if (Math.abs(m13) < 0.99999) {
+
+								this._x = Math.atan2(-m23, m33);
+								this._z = Math.atan2(-m12, m11);
+						} else {
+
+								this._x = Math.atan2(m32, m22);
+								this._z = 0;
+						}
+				} else if (order === 'YXZ') {
+
+						this._x = Math.asin(-clamp(m23, -1, 1));
+
+						if (Math.abs(m23) < 0.99999) {
+
+								this._y = Math.atan2(m13, m33);
+								this._z = Math.atan2(m21, m22);
+						} else {
+
+								this._y = Math.atan2(-m31, m11);
+								this._z = 0;
+						}
+				} else if (order === 'ZXY') {
+
+						this._x = Math.asin(clamp(m32, -1, 1));
+
+						if (Math.abs(m32) < 0.99999) {
+
+								this._y = Math.atan2(-m31, m33);
+								this._z = Math.atan2(-m12, m22);
+						} else {
+
+								this._y = 0;
+								this._z = Math.atan2(m21, m11);
+						}
+				} else if (order === 'ZYX') {
+
+						this._y = Math.asin(-clamp(m31, -1, 1));
+
+						if (Math.abs(m31) < 0.99999) {
+
+								this._x = Math.atan2(m32, m33);
+								this._z = Math.atan2(m21, m11);
+						} else {
+
+								this._x = 0;
+								this._z = Math.atan2(-m12, m22);
+						}
+				} else if (order === 'YZX') {
+
+						this._z = Math.asin(clamp(m21, -1, 1));
+
+						if (Math.abs(m21) < 0.99999) {
+
+								this._x = Math.atan2(-m23, m22);
+								this._y = Math.atan2(-m31, m11);
+						} else {
+
+								this._x = 0;
+								this._y = Math.atan2(m13, m33);
+						}
+				} else if (order === 'XZY') {
+
+						this._z = Math.asin(-clamp(m12, -1, 1));
+
+						if (Math.abs(m12) < 0.99999) {
+
+								this._x = Math.atan2(m32, m22);
+								this._y = Math.atan2(m13, m11);
+						} else {
+
+								this._x = Math.atan2(-m23, m33);
+								this._y = 0;
+						}
+				} else {
+
+						console.warn('THREE.Euler: .setFromRotationMatrix() given unsupported order: ' + order);
+				}
+
+				this._order = order;
+
+				if (update !== false) this.onChangeCallback();
+
+				return this;
+		},
+
+		setFromQuaternion: function () {
+
+				var matrix;
+
+				return function setFromQuaternion(q, order, update) {
+
+						if (matrix === undefined) matrix = new _Matrix.Matrix4();
+
+						matrix.makeRotationFromQuaternion(q);
+
+						return this.setFromRotationMatrix(matrix, order, update);
+				};
+		}(),
+
+		setFromVector3: function setFromVector3(v, order) {
+
+				return this.set(v.x, v.y, v.z, order || this._order);
+		},
+
+		reorder: function () {
+
+				// WARNING: this discards revolution information -bhouston
+
+				var q = new _Quaternion.Quaternion();
+
+				return function reorder(newOrder) {
+
+						q.setFromEuler(this);
+
+						return this.setFromQuaternion(q, newOrder);
+				};
+		}(),
+
+		equals: function equals(euler) {
+
+				return euler._x === this._x && euler._y === this._y && euler._z === this._z && euler._order === this._order;
+		},
+
+		fromArray: function fromArray(array) {
+
+				this._x = array[0];
+				this._y = array[1];
+				this._z = array[2];
+				if (array[3] !== undefined) this._order = array[3];
+
+				this.onChangeCallback();
+
+				return this;
+		},
+
+		toArray: function toArray(array, offset) {
+
+				if (array === undefined) array = [];
+				if (offset === undefined) offset = 0;
+
+				array[offset] = this._x;
+				array[offset + 1] = this._y;
+				array[offset + 2] = this._z;
+				array[offset + 3] = this._order;
+
+				return array;
+		},
+
+		toVector3: function toVector3(optionalResult) {
+
+				if (optionalResult) {
+
+						return optionalResult.set(this._x, this._y, this._z);
+				} else {
+
+						return new _Vector.Vector3(this._x, this._y, this._z);
+				}
+		},
+
+		onChange: function onChange(callback) {
+
+				this.onChangeCallback = callback;
+
+				return this;
+		},
+
+		onChangeCallback: function onChangeCallback() {}
+
+};
+
+exports.Euler = Euler;
+
+},{"./Math":13,"./Matrix4":14,"./Quaternion":15,"./Vector3":17}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1662,7 +2092,7 @@ var _Math = {
 
 exports._Math = _Math;
 
-},{}],12:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2566,7 +2996,7 @@ Matrix4.prototype = {
 
 exports.Matrix4 = Matrix4;
 
-},{"./Math":11,"./Vector3":15}],13:[function(require,module,exports){
+},{"./Math":13,"./Vector3":17}],15:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3116,7 +3546,7 @@ Object.assign(Quaternion, {
 
 exports.Quaternion = Quaternion;
 
-},{"./Vector3":15}],14:[function(require,module,exports){
+},{"./Vector3":17}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3559,7 +3989,7 @@ Vector2.prototype = {
 
 exports.Vector2 = Vector2;
 
-},{}],15:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4287,7 +4717,7 @@ Vector3.prototype = {
 
 exports.Vector3 = Vector3;
 
-},{"./Math":11,"./Matrix4":12,"./Quaternion":13}],16:[function(require,module,exports){
+},{"./Math":13,"./Matrix4":14,"./Quaternion":15}],18:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4367,7 +4797,7 @@ var WebGLRenderer = function () {
 
 exports.WebGLRenderer = WebGLRenderer;
 
-},{"./webgl/WebGLProgram":17}],17:[function(require,module,exports){
+},{"./webgl/WebGLProgram":19}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4418,7 +4848,7 @@ var WebGLProgram = exports.WebGLProgram = function () {
     return WebGLProgram;
 }();
 
-},{"./WebGLShader":18}],18:[function(require,module,exports){
+},{"./WebGLShader":20}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4459,7 +4889,237 @@ function webGLShader(gl, type, shaderSource) {
     return shader;
 }
 
-},{}],19:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.Box = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Shape2 = require("./Shape");
+
+var _Vector = require("../math/Vector2");
+
+var _Vector2 = require("../math/Vector3");
+
+var _Color = require("../math/Color");
+
+var _Euler = require("../math/Euler");
+
+var _Quaternion = require("../math/Quaternion");
+
+var _PerspectiveCamera = require("../camera/PerspectiveCamera");
+
+var _Matrix = require("../math/Matrix4");
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var glslify = require('glslify');
+
+var Box = exports.Box = function (_Shape) {
+    _inherits(Box, _Shape);
+
+    function Box(params) {
+        _classCallCheck(this, Box);
+
+        var _this = _possibleConstructorReturn(this, (Box.__proto__ || Object.getPrototypeOf(Box)).call(this, {
+            renderer: params.renderer,
+            vertexShaderSource: glslify(["#version 300 es\n#define GLSLIFY 1\n\nin vec3 aPosition;\n\nuniform mat4 projectionMatrix;\nuniform mat4 modelMatrix;\nuniform mat4 viewMatrix;\n\nvoid main(){\n    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPosition, 1.0);\n}"]).trim(),
+            fragmentShaderSource: glslify(["#version 300 es\nprecision mediump float;\n#define GLSLIFY 1\n\nuniform vec3 uColor;\n\nout vec4 outColor;\n\nvoid main() {\n  // Just set the output to a constant redish-purple\n  outColor = vec4(uColor, 1.0);\n}"]).trim()
+        }));
+
+        _this._onChangeRotation = _this._onChangeRotation.bind(_this);
+
+        _this.time = 0;
+        _this.width = 100;
+        _this.height = 100;
+        _this.depth = 100;
+
+        var x = params.x ? params.x : 0;
+        var y = params.y ? params.y : 0;
+        var z = params.z ? params.z : -500;
+
+        _this.position = params.position ? params.position : new _Vector2.Vector3(x, y, z);
+        _this.scale = params.scale ? params.scale : new _Vector2.Vector3(1, 1, 1);
+
+        _this.verticeNum = params.verticeNum || 100;
+        _this.vertices = new Float32Array((_this.verticeNum + 1) * 2);
+        _this.vertices[0] = 0;
+        _this.vertices[1] = 0;
+
+        _this.rad = params.rad || 1;
+
+        _this._color = new _Color.Color();
+        _this.colorVector3 = new _Vector2.Vector3();
+        _this.color = '#ff0000' || params.color;
+
+        _this.indiceLength = _this._createShape();
+
+        _this.rotation = new _Euler.Euler();
+        _this.rotationQuaternion = new _Quaternion.Quaternion();
+        _this.rotationMat = new _Matrix.Matrix4();
+        _this.rotation.onChange(_this._onChangeRotation);
+
+        _this.modelMatrix = new _Matrix.Matrix4();
+        _this.updateModelMatrix();
+
+        _this.projectionMatrix = new _Matrix.Matrix4();
+        _this.projectionMatrixArray = new Float32Array(_this.projectionMatrix.toArray());
+
+        _this.viewMatrix = new _Matrix.Matrix4();
+        _this.viewMatrix.identity();
+        _this.viewMatrixArray = new Float32Array(_this.viewMatrix.toArray());
+
+        _this.resize();
+        return _this;
+    }
+
+    _createClass(Box, [{
+        key: "_onChangeRotation",
+        value: function _onChangeRotation() {
+            this.rotationQuaternion.setFromEuler(this.rotation);
+            this.updateModelMatrix();
+        }
+    }, {
+        key: "updateModelMatrix",
+        value: function updateModelMatrix() {
+            this.modelMatrix.compose(this.position, this.rotationQuaternion, this.scale);
+            this.modelMatrixArray = new Float32Array(this.modelMatrix.toArray());
+        }
+    }, {
+        key: "updateViewMatrix",
+        value: function updateViewMatrix(value) {
+            if (value instanceof _Matrix.Matrix4 || value instanceof _PerspectiveCamera.PerspectiveCamera) {
+                this.viewMatrixArray = new Float32Array(value.toArray());
+            } else {
+                console.warn('[Box:updateViewMatrix]value you pass is not matched, you need to pass class of Matrix4 or Camera', value);
+            }
+        }
+
+        // https://github.com/mrdoob/three.js/blob/master/src/cameras/PerspectiveCamera.js
+
+    }, {
+        key: "setProjectionMatrix",
+        value: function setProjectionMatrix(fov, aspect, near, far) {
+            this.near = near;
+            this.far = far;
+            this.fov = fov;
+            this.aspect = aspect;
+
+            var top = this.near * Math.tan(0.5 * this.fov / 180 * Math.PI);
+            var height = 2 * top;
+            var width = this.aspect * height;
+            var left = -0.5 * width;
+
+            this.projectionMatrix.makeFrustum(left, left + width, top - height, top, near, far);
+            this.projectionMatrixArray = new Float32Array(this.projectionMatrix.toArray());
+        }
+    }, {
+        key: "_createShape",
+        value: function _createShape() {
+            // xyz 3 pt
+
+            this.vertices = new Float32Array(2 * 2 * 2 * 3);
+
+            for (var zz = 0; zz < 2; zz++) {
+                var zPos = (zz - 1) * this.depth + this.depth / 2;
+                for (var xx = 0; xx < 2; xx++) {
+                    var xPos = (xx - 1) * this.width + this.width / 2;
+                    for (var yy = 0; yy < 2; yy++) {
+                        var yPos = (yy - 1) * this.height + this.height / 2;
+                        var num = zz * 2 * 2 + xx * 2 + yy;
+                        this.vertices[3 * num] = xPos;
+                        this.vertices[3 * num + 1] = yPos;
+                        this.vertices[3 * num + 2] = zPos;
+                    }
+                }
+            }
+
+            var indices = [0, 2, 1, // front left
+            3, 1, 2, // front right
+            1, 3, 5, // top left
+            7, 5, 3, // top right
+            2, 6, 3, // rightSide left
+            7, 3, 6, // rightSide right
+            0, 4, 1, // leftSide left
+            5, 1, 4, // leftSide right
+            0, 4, 2, // bottom left
+            6, 4, 2, // bottom right
+            4, 6, 5, // back left
+            7, 5, 6 // back right
+            ];
+
+            var shapeAttributes = {
+                positions: { name: 'aPosition', itemSize: 3, data: this.vertices },
+                indices: { name: 'indices', indexArray: true, data: new Uint16Array(indices) }
+            };
+
+            this.shapeVao = this.gl.createVertexArray();
+            this.gl.bindVertexArray(this.shapeVao);
+
+            this.initializeAttributes(shapeAttributes);
+
+            return indices.length;
+        }
+    }, {
+        key: "updateRadius",
+        value: function updateRadius(value) {
+            if (value) this.rad = value;
+
+            this.gl.bindVertexArray(this.shapeVao);
+            this.attributes['positions'].updateData(this.vertices);
+        }
+    }, {
+        key: "_updateUniforms",
+        value: function _updateUniforms() {
+            this.uniforms['uColor'].set3f(this._color.r, this._color.g, this._color.b);
+            this.uniforms['projectionMatrix'].setMatrix4(this.projectionMatrixArray);
+            this.uniforms['modelMatrix'].setMatrix4(this.modelMatrixArray);
+            this.uniforms['viewMatrix'].setMatrix4(this.viewMatrixArray);
+        }
+    }, {
+        key: "update",
+        value: function update() {
+            var dt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1 / 60;
+
+            this.time += dt;
+
+            return this;
+        }
+    }, {
+        key: "draw",
+        value: function draw() {
+            var gl = this.renderer.gl;
+
+            gl.useProgram(this.program);
+            gl.bindVertexArray(this.shapeVao);
+
+            this._updateUniforms();
+
+            gl.drawElements(gl.TRIANGLES, this.indiceLength, gl.UNSIGNED_SHORT, 0);
+        }
+    }, {
+        key: "resize",
+        value: function resize() {}
+    }, {
+        key: "color",
+        set: function set(value) {
+            this._colorStr = value;
+            this._color.setStyle(this._colorStr);
+        }
+    }]);
+
+    return Box;
+}(_Shape2.Shape);
+
+},{"../camera/PerspectiveCamera":3,"../math/Color":11,"../math/Euler":12,"../math/Matrix4":14,"../math/Quaternion":15,"../math/Vector2":16,"../math/Vector3":17,"./Shape":24,"glslify":2}],22:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4612,7 +5272,7 @@ var Circle = exports.Circle = function (_Shape) {
     return Circle;
 }(_Shape2.Shape);
 
-},{"../math/Color":10,"../math/Vector2":14,"../math/Vector3":15,"./Shape":21,"glslify":2}],20:[function(require,module,exports){
+},{"../math/Color":11,"../math/Vector2":16,"../math/Vector3":17,"./Shape":24,"glslify":2}],23:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4753,7 +5413,7 @@ var Rectangle = exports.Rectangle = function (_Shape) {
     return Rectangle;
 }(_Shape2.Shape);
 
-},{"../math/Color":10,"../math/Vector2":14,"../math/Vector3":15,"./Shape":21,"glslify":2}],21:[function(require,module,exports){
+},{"../math/Color":11,"../math/Vector2":16,"../math/Vector3":17,"./Shape":24,"glslify":2}],24:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4811,8 +5471,8 @@ var Shape = exports.Shape = function (_EventEmitter) {
 
             for (var ii = 0; ii < numUniforms; ii++) {
                 var uniformInfo = this.gl.getActiveUniform(this.program, ii);
-                var uniformHandle = this.gl.getUniformLocation(this.program, uniformInfo.name);
-                this.uniforms[uniformInfo.name] = new _Uniform.Uniform({ uniformInfo: uniformInfo, uniformHandle: uniformHandle, gl: this.gl });
+                var uniformLocation = this.gl.getUniformLocation(this.program, uniformInfo.name);
+                this.uniforms[uniformInfo.name] = new _Uniform.Uniform({ uniformInfo: uniformInfo, uniformLocation: uniformLocation, gl: this.gl });
             }
         }
     }, {
@@ -4840,7 +5500,7 @@ var Shape = exports.Shape = function (_EventEmitter) {
     return Shape;
 }(EventEmitter);
 
-},{"../core/Attribute":3,"../core/Uniform":7,"eventemitter3":1}],22:[function(require,module,exports){
+},{"../core/Attribute":4,"../core/Uniform":8,"eventemitter3":1}],25:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4994,4 +5654,4 @@ var Triangle = exports.Triangle = function (_Shape) {
     return Triangle;
 }(_Shape2.Shape);
 
-},{"../math/Color":10,"../math/Vector2":14,"../math/Vector3":15,"./Shape":21,"glslify":2}]},{},[9]);
+},{"../math/Color":11,"../math/Vector2":16,"../math/Vector3":17,"./Shape":24,"glslify":2}]},{},[10]);
