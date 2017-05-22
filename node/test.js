@@ -104,6 +104,9 @@ function takeScreenShot(){
 
         CDP(async (client) => {
             const {Page, Network} = client;
+            Page.screencastFrame(string=>{
+                console.log(string);
+            })
             // let targetHTML = fileName; 'test0Triangle.html';
             let url = `http://localhost:8080/test/${targetHTML}`
             try {
@@ -117,10 +120,11 @@ function takeScreenShot(){
                 const {data} = await Page.captureScreenshot({formt: "jpg"});
                 fs.writeFileSync(`./test/img/${titleId}.jpg`, Buffer.from(data, 'base64'));
                 console.log('done');
-                //
             } catch (err) {
                 console.error(err);
             }
+
+
             await client.close();
             process.exit();
         }).on('error', (err) => {

@@ -1,11 +1,4 @@
-import {Shape} from "./Shape";
-import {Vector2} from "../math/Vector2"
-import {Vector3} from "../math/Vector3"
-import {Color} from "../math/Color";
-import {Euler} from '../math/Euler';
-import {Quaternion} from '../math/Quaternion';
-import {PerspectiveCamera} from '../camera/PerspectiveCamera';
-import {Matrix4} from '../math/Matrix4';
+import {Shape, Vector2, Vector3, Color, Euler, Quaternion, PerspectiveCamera, Matrix4} from '../index';
 
 const glslify = require('glslify');
 
@@ -76,10 +69,23 @@ export class Box extends Shape {
     }
 
     updateViewMatrix(value){
-        if( value instanceof Matrix4 || value instanceof PerspectiveCamera ){
+        console.log(value);
+        if( value instanceof Matrix4 ){
             this.viewMatrixArray = new Float32Array(value.toArray());
+        }else if(value instanceof  PerspectiveCamera){
+            this.viewMatrixArray = new Float32Array(value.toViewArray());
         }else{
-            console.warn('[Box:updateViewMatrix]value you pass is not matched, you need to pass class of Matrix4 or Camera', value);
+            console.warn('[Box:updateViewMatrix] value you pass is not matched, you need to pass class of Matrix4 or Camera', value);
+        }
+    }
+
+    updateProjectionMatrix(value){
+        if(value instanceof Matrix4 ){
+            this.projectionMatrixArray = new Float32Array(value.toArray());
+        } else if(value instanceof PerspectiveCamera){
+            this.projectionMatrixArray = new Float32Array(value.toProjectionArray());
+        }else{
+            console.warn('[Box:updateProjectMatrix] value you pass is not matched, you need to pass class of Matrix4 or Camera', value);
         }
     }
 

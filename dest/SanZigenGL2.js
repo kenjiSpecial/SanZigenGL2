@@ -335,6 +335,12 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _Matrix = require('../math/Matrix4');
 
+var _Vector = require('../math/Vector3');
+
+var _Euler = require('../math/Euler');
+
+var _Quaternion = require('../math/Quaternion');
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 // perspective camera
@@ -342,15 +348,71 @@ var PerspectiveCamera = function () {
     function PerspectiveCamera() {
         _classCallCheck(this, PerspectiveCamera);
 
+        this._onChangeRotation = this._onChangeRotation.bind(this);
+        this._onChangeQuaternion = this._onChangeQuaternion.bind(this);
+
         this.projectionMatrix = new _Matrix.Matrix4();
+        this.viewMatrix = new _Matrix.Matrix4();
+        this.viewInverseMatrix = new _Matrix.Matrix4();
+
+        this.position = new _Vector.Vector3();
+        this.rotation = new _Euler.Euler();
+        this.scale = new _Vector.Vector3(1, 1, 1);
+        this.quaternion = new _Quaternion.Quaternion();
+        this.up = new _Vector.Vector3(0, 1, 0);
+        this._rotationMat = new _Matrix.Matrix4();
     }
 
     _createClass(PerspectiveCamera, [{
         key: 'setProjectionMatrix',
         value: function setProjectionMatrix(fov, aspect, near, far) {
-            this.near = near;this.far = far;this.fov = fov;this.aspect = aspect;
+            this.near = near;
+            this.far = far;
+            this.fov = fov;
+            this.aspect = aspect;
 
-            // let top =
+            var top = this.near * Math.tan(0.5 * this.fov / 180 * Math.PI);
+            var height = 2 * top;
+            var width = this.aspect * height;
+            var left = -0.5 * width;
+
+            this.projectionMatrix.makeFrustum(left, left + width, top - height, top, near, far);
+        }
+    }, {
+        key: '_onChangeRotation',
+        value: function _onChangeRotation() {
+            this.quaternion.setFromEuler(this.rotation);
+            this.updateViewMatrix();
+        }
+    }, {
+        key: '_onChangeQuaternion',
+        value: function _onChangeQuaternion() {
+            this.rotation.setFromQuaternion(this.quaternion);
+            this.updateViewMatrix();
+        }
+    }, {
+        key: 'updateViewMatrix',
+        value: function updateViewMatrix() {
+            this.viewMatrix.compose(this.position, this.quaternion, this.scale);
+            this.viewInverseMatrix.getInverse(this.viewMatrix);
+            return this;
+        }
+    }, {
+        key: 'lookAt',
+        value: function lookAt(target) {
+            this._rotationMat.lookAt(this.position, target, this.up);
+            this.quaternion.setFromRotationMatrix(this._rotationMat);
+            return this;
+        }
+    }, {
+        key: 'toViewArray',
+        value: function toViewArray() {
+            return this.viewInverseMatrix.toArray();
+        }
+    }, {
+        key: 'toProjectionArray',
+        value: function toProjectionArray() {
+            return this.projectionMatrix.toArray();
         }
     }]);
 
@@ -359,7 +421,7 @@ var PerspectiveCamera = function () {
 
 exports.PerspectiveCamera = PerspectiveCamera;
 
-},{"../math/Matrix4":14}],4:[function(require,module,exports){
+},{"../math/Euler":12,"../math/Matrix4":14,"../math/Quaternion":15,"../math/Vector3":17}],4:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -756,13 +818,16 @@ var TransformFeedback = exports.TransformFeedback = function () {
 }();
 
 },{}],8:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.Uniform = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _utils = require('../utils/utils');
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -851,7 +916,7 @@ var Uniform = exports.Uniform = function () {
     }
 
     _createClass(Uniform, [{
-        key: "set1f",
+        key: 'set1f',
         value: function set1f(value0) {
             if (this.cache === value0) return;
 
@@ -859,7 +924,7 @@ var Uniform = exports.Uniform = function () {
             this.gl.uniform1f(this.uniformLocation, value0);
         }
     }, {
-        key: "set2f",
+        key: 'set2f',
         value: function set2f(value0, value1) {
             if (this.cache && this.cache.x === value0 && this.cache.y === value1) return;
 
@@ -867,7 +932,7 @@ var Uniform = exports.Uniform = function () {
             this.gl.uniform2f(this.uniformLocation, value0, value1);
         }
     }, {
-        key: "set3f",
+        key: 'set3f',
         value: function set3f(value0, value1, value2) {
             if (this.cache && this.cache.x === value0 && this.cache.y === value1 && this.cache.z === value2) return;
 
@@ -875,7 +940,7 @@ var Uniform = exports.Uniform = function () {
             this.gl.uniform3f(this.uniformLocation, value0, value1, value2);
         }
     }, {
-        key: "set4f",
+        key: 'set4f',
         value: function set4f(value0, value1, value2, value3) {
             if (this.cache && this.cache.x === value0 && this.cache.y === value1 && this.cache.z === value2 && this.cache.w === value3) return;
 
@@ -883,10 +948,10 @@ var Uniform = exports.Uniform = function () {
             this.gl.uniform4f(this.uniformLocation, value0, value1, value2, value3);
         }
     }, {
-        key: "setMatrix",
+        key: 'setMatrix',
         value: function setMatrix(arrVal) {
             if (arrVal.length !== 4 && arrVal.length !== 9 && arrVal.length !== 16) {
-                console.error("we don't support: array length " + arrVal.length);
+                console.error('we don\'t support: array length ' + arrVal.length);
                 return;
             }
             if (this.cache === arrVal) return;
@@ -902,23 +967,25 @@ var Uniform = exports.Uniform = function () {
             }
         }
     }, {
-        key: "setMatrix4",
+        key: 'setMatrix4',
         value: function setMatrix4(arrVal) {
             if (arrVal.length !== 16) {
-                console.error("we need 16 items in array. we don't support: array length " + arrVal.length);
+                console.error('we need 16 items in array. we don\'t support: array length ' + arrVal.length);
                 return;
             }
 
             if (this.cache === arrVal) return;
+            if ((0, _utils.arraysEqual)(this.cache, arrVal)) return;
+
             this.cache = arrVal;
 
             this.gl.uniformMatrix4fv(this.uniformLocation, false, arrVal);
         }
     }, {
-        key: "setMatrix3",
+        key: 'setMatrix3',
         value: function setMatrix3(arrVal) {
             if (arrVal.length !== 9) {
-                console.error("we need 9 items in array. we don't support: array length " + arrVal.length);
+                console.error('we need 9 items in array. we don\'t support: array length ' + arrVal.length);
                 return;
             }
 
@@ -928,10 +995,10 @@ var Uniform = exports.Uniform = function () {
             this.gl.uniformMatrix3fv(this.uniformLocation, false, arrVal);
         }
     }, {
-        key: "setMatrix2",
+        key: 'setMatrix2',
         value: function setMatrix2(arrVal) {
             if (arrVal.length !== 4) {
-                console.error("we need 4 items in array. we don't support: array length " + arrVal.length);
+                console.error('we need 4 items in array. we don\'t support: array length ' + arrVal.length);
                 return;
             }
 
@@ -941,7 +1008,7 @@ var Uniform = exports.Uniform = function () {
             this.gl.uniformMatrix2fv(this.uniformLocation, false, arrVal);
         }
     }, {
-        key: "set",
+        key: 'set',
         value: function set(value) {
             console.log(arguments.length);
             if (this.cache === value) return;
@@ -967,7 +1034,7 @@ var Uniform = exports.Uniform = function () {
                     this.gl.uniform4f(thihs.uniformLocation, value.x, value.y, value.z, value.w);
                 }
             } else {
-                console.error("make method for uniformCount:" + this.uniformCount);
+                console.error('make method for uniformCount:' + this.uniformCount);
             }
         }
     }]);
@@ -975,7 +1042,7 @@ var Uniform = exports.Uniform = function () {
     return Uniform;
 }();
 
-},{}],9:[function(require,module,exports){
+},{"../utils/utils":26}],9:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1090,6 +1157,33 @@ Object.defineProperty(exports, 'Matrix4', {
   }
 });
 
+var _Euler = require('./math/Euler');
+
+Object.defineProperty(exports, 'Euler', {
+  enumerable: true,
+  get: function get() {
+    return _Euler.Euler;
+  }
+});
+
+var _Quaternion = require('./math/Quaternion');
+
+Object.defineProperty(exports, 'Quaternion', {
+  enumerable: true,
+  get: function get() {
+    return _Quaternion.Quaternion;
+  }
+});
+
+var _Color = require('./math/Color');
+
+Object.defineProperty(exports, 'Color', {
+  enumerable: true,
+  get: function get() {
+    return _Color.Color;
+  }
+});
+
 var _Shape = require('./shape/Shape');
 
 Object.defineProperty(exports, 'Shape', {
@@ -1135,7 +1229,16 @@ Object.defineProperty(exports, 'Box', {
   }
 });
 
-},{"./core/Attribute":4,"./core/Clock":5,"./core/ProgramRenderer":6,"./core/TransformFeedback":7,"./core/Uniform":8,"./math/Math":13,"./math/Matrix4":14,"./math/Vector2":16,"./math/Vector3":17,"./renderers/WebGLRenderer":18,"./renderers/webgl/WebGLProgram":19,"./renderers/webgl/WebGLShader":20,"./shape/Box":21,"./shape/Circle":22,"./shape/Rectangle":23,"./shape/Shape":24,"./shape/Triangle":25}],10:[function(require,module,exports){
+var _PerspectiveCamera = require('./Camera/PerspectiveCamera');
+
+Object.defineProperty(exports, 'PerspectiveCamera', {
+  enumerable: true,
+  get: function get() {
+    return _PerspectiveCamera.PerspectiveCamera;
+  }
+});
+
+},{"./Camera/PerspectiveCamera":3,"./core/Attribute":4,"./core/Clock":5,"./core/ProgramRenderer":6,"./core/TransformFeedback":7,"./core/Uniform":8,"./math/Color":11,"./math/Euler":12,"./math/Math":13,"./math/Matrix4":14,"./math/Quaternion":15,"./math/Vector2":16,"./math/Vector3":17,"./renderers/WebGLRenderer":18,"./renderers/webgl/WebGLProgram":19,"./renderers/webgl/WebGLShader":20,"./shape/Box":21,"./shape/Circle":22,"./shape/Rectangle":23,"./shape/Shape":24,"./shape/Triangle":25}],10:[function(require,module,exports){
 'use strict';
 
 window.San = require('./index');
@@ -4890,7 +4993,7 @@ function webGLShader(gl, type, shaderSource) {
 }
 
 },{}],21:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -4899,21 +5002,7 @@ exports.Box = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Shape2 = require("./Shape");
-
-var _Vector = require("../math/Vector2");
-
-var _Vector2 = require("../math/Vector3");
-
-var _Color = require("../math/Color");
-
-var _Euler = require("../math/Euler");
-
-var _Quaternion = require("../math/Quaternion");
-
-var _PerspectiveCamera = require("../camera/PerspectiveCamera");
-
-var _Matrix = require("../math/Matrix4");
+var _index = require('../index');
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -4946,8 +5035,8 @@ var Box = exports.Box = function (_Shape) {
         var y = params.y ? params.y : 0;
         var z = params.z ? params.z : -500;
 
-        _this.position = params.position ? params.position : new _Vector2.Vector3(x, y, z);
-        _this.scale = params.scale ? params.scale : new _Vector2.Vector3(1, 1, 1);
+        _this.position = params.position ? params.position : new _index.Vector3(x, y, z);
+        _this.scale = params.scale ? params.scale : new _index.Vector3(1, 1, 1);
 
         _this.verticeNum = params.verticeNum || 100;
         _this.vertices = new Float32Array((_this.verticeNum + 1) * 2);
@@ -4956,24 +5045,24 @@ var Box = exports.Box = function (_Shape) {
 
         _this.rad = params.rad || 1;
 
-        _this._color = new _Color.Color();
-        _this.colorVector3 = new _Vector2.Vector3();
+        _this._color = new _index.Color();
+        _this.colorVector3 = new _index.Vector3();
         _this.color = '#ff0000' || params.color;
 
         _this.indiceLength = _this._createShape();
 
-        _this.rotation = new _Euler.Euler();
-        _this.rotationQuaternion = new _Quaternion.Quaternion();
-        _this.rotationMat = new _Matrix.Matrix4();
+        _this.rotation = new _index.Euler();
+        _this.rotationQuaternion = new _index.Quaternion();
+        _this.rotationMat = new _index.Matrix4();
         _this.rotation.onChange(_this._onChangeRotation);
 
-        _this.modelMatrix = new _Matrix.Matrix4();
+        _this.modelMatrix = new _index.Matrix4();
         _this.updateModelMatrix();
 
-        _this.projectionMatrix = new _Matrix.Matrix4();
+        _this.projectionMatrix = new _index.Matrix4();
         _this.projectionMatrixArray = new Float32Array(_this.projectionMatrix.toArray());
 
-        _this.viewMatrix = new _Matrix.Matrix4();
+        _this.viewMatrix = new _index.Matrix4();
         _this.viewMatrix.identity();
         _this.viewMatrixArray = new Float32Array(_this.viewMatrix.toArray());
 
@@ -4982,31 +5071,45 @@ var Box = exports.Box = function (_Shape) {
     }
 
     _createClass(Box, [{
-        key: "_onChangeRotation",
+        key: '_onChangeRotation',
         value: function _onChangeRotation() {
             this.rotationQuaternion.setFromEuler(this.rotation);
             this.updateModelMatrix();
         }
     }, {
-        key: "updateModelMatrix",
+        key: 'updateModelMatrix',
         value: function updateModelMatrix() {
             this.modelMatrix.compose(this.position, this.rotationQuaternion, this.scale);
             this.modelMatrixArray = new Float32Array(this.modelMatrix.toArray());
         }
     }, {
-        key: "updateViewMatrix",
+        key: 'updateViewMatrix',
         value: function updateViewMatrix(value) {
-            if (value instanceof _Matrix.Matrix4 || value instanceof _PerspectiveCamera.PerspectiveCamera) {
+            console.log(value);
+            if (value instanceof _index.Matrix4) {
                 this.viewMatrixArray = new Float32Array(value.toArray());
+            } else if (value instanceof _index.PerspectiveCamera) {
+                this.viewMatrixArray = new Float32Array(value.toViewArray());
             } else {
-                console.warn('[Box:updateViewMatrix]value you pass is not matched, you need to pass class of Matrix4 or Camera', value);
+                console.warn('[Box:updateViewMatrix] value you pass is not matched, you need to pass class of Matrix4 or Camera', value);
+            }
+        }
+    }, {
+        key: 'updateProjectionMatrix',
+        value: function updateProjectionMatrix(value) {
+            if (value instanceof _index.Matrix4) {
+                this.projectionMatrixArray = new Float32Array(value.toArray());
+            } else if (value instanceof _index.PerspectiveCamera) {
+                this.projectionMatrixArray = new Float32Array(value.toProjectionArray());
+            } else {
+                console.warn('[Box:updateProjectMatrix] value you pass is not matched, you need to pass class of Matrix4 or Camera', value);
             }
         }
 
         // https://github.com/mrdoob/three.js/blob/master/src/cameras/PerspectiveCamera.js
 
     }, {
-        key: "setProjectionMatrix",
+        key: 'setProjectionMatrix',
         value: function setProjectionMatrix(fov, aspect, near, far) {
             this.near = near;
             this.far = far;
@@ -5022,7 +5125,7 @@ var Box = exports.Box = function (_Shape) {
             this.projectionMatrixArray = new Float32Array(this.projectionMatrix.toArray());
         }
     }, {
-        key: "_createShape",
+        key: '_createShape',
         value: function _createShape() {
             // xyz 3 pt
 
@@ -5069,7 +5172,7 @@ var Box = exports.Box = function (_Shape) {
             return indices.length;
         }
     }, {
-        key: "updateRadius",
+        key: 'updateRadius',
         value: function updateRadius(value) {
             if (value) this.rad = value;
 
@@ -5077,7 +5180,7 @@ var Box = exports.Box = function (_Shape) {
             this.attributes['positions'].updateData(this.vertices);
         }
     }, {
-        key: "_updateUniforms",
+        key: '_updateUniforms',
         value: function _updateUniforms() {
             this.uniforms['uColor'].set3f(this._color.r, this._color.g, this._color.b);
             this.uniforms['projectionMatrix'].setMatrix4(this.projectionMatrixArray);
@@ -5085,7 +5188,7 @@ var Box = exports.Box = function (_Shape) {
             this.uniforms['viewMatrix'].setMatrix4(this.viewMatrixArray);
         }
     }, {
-        key: "update",
+        key: 'update',
         value: function update() {
             var dt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1 / 60;
 
@@ -5094,7 +5197,7 @@ var Box = exports.Box = function (_Shape) {
             return this;
         }
     }, {
-        key: "draw",
+        key: 'draw',
         value: function draw() {
             var gl = this.renderer.gl;
 
@@ -5106,10 +5209,10 @@ var Box = exports.Box = function (_Shape) {
             gl.drawElements(gl.TRIANGLES, this.indiceLength, gl.UNSIGNED_SHORT, 0);
         }
     }, {
-        key: "resize",
+        key: 'resize',
         value: function resize() {}
     }, {
-        key: "color",
+        key: 'color',
         set: function set(value) {
             this._colorStr = value;
             this._color.setStyle(this._colorStr);
@@ -5117,9 +5220,9 @@ var Box = exports.Box = function (_Shape) {
     }]);
 
     return Box;
-}(_Shape2.Shape);
+}(_index.Shape);
 
-},{"../camera/PerspectiveCamera":3,"../math/Color":11,"../math/Euler":12,"../math/Matrix4":14,"../math/Quaternion":15,"../math/Vector2":16,"../math/Vector3":17,"./Shape":24,"glslify":2}],22:[function(require,module,exports){
+},{"../index":9,"glslify":2}],22:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5654,4 +5757,27 @@ var Triangle = exports.Triangle = function (_Shape) {
     return Triangle;
 }(_Shape2.Shape);
 
-},{"../math/Color":11,"../math/Vector2":16,"../math/Vector3":17,"./Shape":24,"glslify":2}]},{},[10]);
+},{"../math/Color":11,"../math/Vector2":16,"../math/Vector3":17,"./Shape":24,"glslify":2}],26:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.arraysEqual = arraysEqual;
+
+// http://stackoverflow.com/questions/3115982/how-to-check-if-two-arrays-are-equal-with-javascript
+function arraysEqual(a, b) {
+    //if (a === b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    // If you don't care about the order of the elements inside
+    // the array, you should sort both arrays here.
+
+    for (var i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) return false;
+    }
+    return true;
+}
+
+},{}]},{},[10]);

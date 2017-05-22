@@ -7,7 +7,10 @@
 // import App from './apps/AppTriangle';
 // import App from './apps/AppCircle';
 // import App from './apps/AppRectangles';
-import App from './apps/AppBox';
+// import App from './apps/AppBox';
+// import App from './apps/AppBoxWithCamera';
+
+import App from './apps/AppTexture';
 
 let app;
 

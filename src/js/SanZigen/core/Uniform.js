@@ -1,3 +1,4 @@
+import {arraysEqual} from '../utils/utils'
 
 export class Uniform {
 
@@ -130,6 +131,8 @@ export class Uniform {
         }
 
         if(this.cache === arrVal) return;
+        if(arraysEqual(this.cache, arrVal)) return;
+
         this.cache = arrVal;
 
         this.gl.uniformMatrix4fv( this.uniformLocation, false, arrVal);

@@ -17,6 +17,7 @@
     "connect": "^3.6.1",
     "dat.gui": "github:dataarts/dat.gui",
     "eventemitter3": "^2.0.2",
+    "gifencoder": "^1.0.6",
     "gsap": "^1.19.0",
     "http-server": "^0.10.0",
     "lighthouse": "^1.6.5",
@@ -53,7 +54,7 @@
     "library": "gulp library",
     "chrome": "node ./node/openChrome.js",
     "screenShotTest": "node ./node/test.js",
-    "createTemplate" : "node ./node/openChrome.js"
+    "createTemplate": "node ./node/createHTMLTemplate.js"
   },
   "keywords": [
     "budo",
