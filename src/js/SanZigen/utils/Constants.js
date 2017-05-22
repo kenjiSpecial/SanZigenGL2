@@ -1,0 +1,3 @@
+const Constant = {}
+
+export {Constant};

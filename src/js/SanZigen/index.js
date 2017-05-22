@@ -28,3 +28,7 @@ export {Box} from './shape/Box';
 export {Texture} from './texture/Texture';
 
 export {PerspectiveCamera} from './camera/PerspectiveCamera';
+
+
+export {appProperties} from './utils/AppProperties';
+export {Constants} from './utils/Constants';

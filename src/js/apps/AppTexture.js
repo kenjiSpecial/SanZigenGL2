@@ -1,6 +1,6 @@
 'use strict';
 
-import { WebGLRenderer, Rectangle, Circle, Triangle, Vector2, Texture } from 'SanZigen'
+import { WebGLRenderer, Rectangle, Circle, Triangle, Vector2, Texture  } from 'SanZigen'
 
 const TweenMax = require('gsap');
 const Stats = require('stats.js');
@@ -57,7 +57,6 @@ export default class App {
         gl.clearColor(0, 0, 0, 1);
         gl.clear(gl.COLOR_BUFFER_BIT);
 
-        // this.circles.forEach(circle => circle.update().draw());
         this.rectangle.update().draw();
 
         this.stats.update();

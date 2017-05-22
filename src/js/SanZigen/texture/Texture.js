@@ -1,9 +1,13 @@
 "use strict";
 const EventEmitter = require('eventemitter3');
+import {appProperties} from '../index';
 
 export class Texture {
-    constructor(params) {
+    constructor(params){
+        this.id = appProperties.textureNumber++;
+        console.log(this.id);
         this.renderer = params.renderer;
+
         this.gl = this.renderer.gl;
         this.texture = this.gl.createTexture();
         this.textureUnit = params.textureUnit;
@@ -25,10 +29,9 @@ export class Texture {
     _onLoadImg(){
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
         this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image)
-        this.gl.texParameteri( this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
-        this.gl.texParameteri( this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_NEAREST);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_NEAREST);
         this.gl.generateMipmap(this.gl.TEXTURE_2D);
-        //this.gl.bindTexture(this.gl.TEXTURE_2D, null);
     }
 
     bind(){
