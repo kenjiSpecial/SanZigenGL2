@@ -5,20 +5,21 @@ import {appProperties} from '../index';
 export class Texture {
     constructor(params){
         this.id = appProperties.textureNumber++;
-        console.log(this.id);
         this.renderer = params.renderer;
 
         this.gl = this.renderer.gl;
         this.texture = this.gl.createTexture();
-        this.textureUnit = params.textureUnit;
+        this.textureUnit = this.gl['TEXTURE' + this.id];
 
         if(params.image){
             this.image = image;
             this._onLoadImg();
+            this.isLoaded = true;
         }else if(params.imgUrl){
             this.image = new Image();
             this.image.onload = () => this._onLoadImg();
             this.image.src = params.imgUrl;
+            this.isLoaded = false;
         }else{
             console.error('you don\'t have neighter image nor imgUrl.');
         }
@@ -27,6 +28,7 @@ export class Texture {
     }
 
     _onLoadImg(){
+        this.isLoaded = true;
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
         this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image)
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);

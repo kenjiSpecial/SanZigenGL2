@@ -9,8 +9,8 @@ export class Rectangle extends Shape {
     constructor(params){
         super({
             renderer: params.renderer,
-            vertexShaderSource: glslify("./shaders/Circle.shader.vert").trim(),
-            fragmentShaderSource: glslify("./shaders/Circle.shader.frag").trim(),
+            vertexShaderSource: params.vertexShaderSource ? params.vertexShaderSource : glslify("./shaders/Rectangle.shader.vert").trim(),
+            fragmentShaderSource: params.fragmentShaderSource ? params.fragmentShaderSource : paramglslify("./shaders/Rectangle.shader.frag").trim(),
         });
 
         this.time = 0;
@@ -82,9 +82,6 @@ export class Rectangle extends Shape {
 
     update(dt = 1/60){
         this.time += dt;
-
-
-
         return this
     }
 

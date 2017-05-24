@@ -1,6 +1,6 @@
 'use strict';
 
-import { WebGLRenderer, Rectangle, Circle, Triangle, Vector2, Texture  } from 'SanZigen'
+import { WebGLRenderer, Circle, Triangle, Vector2, Texture, TextureRectangle } from 'SanZigen'
 
 const TweenMax = require('gsap');
 const Stats = require('stats.js');
@@ -11,13 +11,10 @@ export default class App {
         this.renderer = new WebGLRenderer({alpha: true, antialias: true});
         this.domElement = this.renderer.domElement;
 
-
         this._initializeShape(params);
-
 
         this._addGui();
         this._addStats();
-
 
         this.resize();
     }
@@ -27,7 +24,7 @@ export default class App {
             renderer : this.renderer,
             imgUrl : './img/uv_map.jpg',
         });
-        this.rectangle = new Rectangle({renderer: this.renderer, texture : this.texture });
+        this.rectangle = new TextureRectangle({renderer: this.renderer, texture : this.texture });
     }
 
     _addGui(){

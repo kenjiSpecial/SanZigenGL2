@@ -35,6 +35,7 @@ export  class Shape extends EventEmitter{
         }
     }
     initializeAttributes(attributes){
+        
         for(let key in attributes){
             this.attributes[key] = new Attribute({
                 gl : this.gl,

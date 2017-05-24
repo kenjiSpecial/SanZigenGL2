@@ -23,6 +23,7 @@ export {Shape} from './shape/Shape';
 export {Triangle} from './shape/Triangle';
 export {Circle} from './shape/Circle'
 export {Rectangle} from './shape/Rectangle';
+export {TextureRectangle} from './shape/TextureRectangle';
 export {Box} from './shape/Box';
 
 export {Texture} from './texture/Texture';

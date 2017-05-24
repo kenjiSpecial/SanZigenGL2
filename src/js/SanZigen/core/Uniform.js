@@ -159,9 +159,16 @@ export class Uniform {
 
         this.gl.uniformMatrix2fv(this.uniformLocation, false, arrVal);
     }
+    setTexture(texVal){
+        
+        if( this.cache === texVal && texVal.isLoaded ) return;
+        this.cache = texVal;
 
+        this.gl.activeTexture(texVal.textureUnit);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, texVal.texture);
+        this.gl.uniform1i(this.uniformLocation, texVal.id);
+    }
     set(value){
-        console.log(arguments.length);
         if(this.cache === value) return;
 
         if(this.uniformCount === 1){
