@@ -1,3 +1,4 @@
 export let appProperties = {
-    textureNumber : 0
+    textureNumber : 0,
+    textureNeedsUpdate : false
 };

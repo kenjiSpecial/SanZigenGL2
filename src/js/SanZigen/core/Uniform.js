@@ -1,8 +1,9 @@
 import {arraysEqual} from '../utils/utils'
+import {appProperties} from '../index';
 
 export class Uniform {
 
-    constructor(params) {
+    constructor(params){
         this.uniformInfo = params.uniformInfo;
         this.name = this.uniformInfo.name;
         if(params.uniformHandle){
@@ -14,7 +15,7 @@ export class Uniform {
         let UniformClass;
         let uniformCount;
         let gl = this.gl;
-        switch (this.uniformInfo.type) {
+        switch(this.uniformInfo.type){
             case gl.INT:
             case gl.BOOL:
             case gl.SAMPLER_2D:
@@ -83,30 +84,35 @@ export class Uniform {
         this.UniformClass = UniformClass;
         this.uniformCount = uniformCount;
     }
+
     set1f(value0){
         if(this.cache === value0) return;
 
         this.cache = value0;
         this.gl.uniform1f(this.uniformLocation, value0);
     }
-    set2f(value0, value1){
-        if(this.cache && this.cache.x === value0 && this.cache.y === value1 ) return;
 
-        this.cache = {x: value0, y : value1};
+    set2f(value0, value1){
+        if(this.cache && this.cache.x === value0 && this.cache.y === value1) return;
+
+        this.cache = {x: value0, y: value1};
         this.gl.uniform2f(this.uniformLocation, value0, value1);
     }
+
     set3f(value0, value1, value2){
-        if(this.cache && this.cache.x === value0 && this.cache.y === value1 && this.cache.z === value2 ) return;
+        if(this.cache && this.cache.x === value0 && this.cache.y === value1 && this.cache.z === value2) return;
 
         this.cache = {x: value0, y: value1, z: value2};
         this.gl.uniform3f(this.uniformLocation, value0, value1, value2);
     }
+
     set4f(value0, value1, value2, value3){
         if(this.cache && this.cache.x === value0 && this.cache.y === value1 && this.cache.z === value2 && this.cache.w === value3) return;
 
         this.cache = {x: value0, y: value1, z: value2, w: value3};
         this.gl.uniform4f(this.uniformLocation, value0, value1, value2, value3);
     }
+
     setMatrix(arrVal){
         if(arrVal.length !== 4 && arrVal.length !== 9 && arrVal.length !== 16){
             console.error(`we don\'t support: array length ${arrVal.length}`);
@@ -117,13 +123,14 @@ export class Uniform {
         this.cache = arrVal;
 
         if(arrVal.length === 4){
-            this.gl.uniformMatrix2fv( this.uniformLocation, false, arrVal);
+            this.gl.uniformMatrix2fv(this.uniformLocation, false, arrVal);
         }else if(arrVal.length === 9){
-            this.gl.uniformMatrix3fv( this.uniformLocation, false, arrVal);
+            this.gl.uniformMatrix3fv(this.uniformLocation, false, arrVal);
         }else if(arrVal.length === 16){
-            this.gl.uniformMatrix4fv( this.uniformLocation, false, arrVal);
+            this.gl.uniformMatrix4fv(this.uniformLocation, false, arrVal);
         }
     }
+
     setMatrix4(arrVal){
         if(arrVal.length !== 16){
             console.error(`we need 16 items in array. we don\'t support: array length ${arrVal.length}`);
@@ -135,8 +142,9 @@ export class Uniform {
 
         this.cache = arrVal;
 
-        this.gl.uniformMatrix4fv( this.uniformLocation, false, arrVal);
+        this.gl.uniformMatrix4fv(this.uniformLocation, false, arrVal);
     }
+
     setMatrix3(arrVal){
         if(arrVal.length !== 9){
             console.error(`we need 9 items in array. we don\'t support: array length ${arrVal.length}`);
@@ -148,6 +156,7 @@ export class Uniform {
 
         this.gl.uniformMatrix3fv(this.uniformLocation, false, arrVal);
     }
+
     setMatrix2(arrVal){
         if(arrVal.length !== 4){
             console.error(`we need 4 items in array. we don\'t support: array length ${arrVal.length}`);
@@ -159,15 +168,17 @@ export class Uniform {
 
         this.gl.uniformMatrix2fv(this.uniformLocation, false, arrVal);
     }
+
     setTexture(texVal){
-        
-        if( this.cache === texVal && texVal.isLoaded ) return;
+        if(!appProperties.textureNeedsUpdate) return;
         this.cache = texVal;
 
         this.gl.activeTexture(texVal.textureUnit);
-        this.gl.bindTexture(this.gl.TEXTURE_2D, texVal.texture);
+        texVal.bind();
+        if(texVal.video) texVal.updateVideo();
         this.gl.uniform1i(this.uniformLocation, texVal.id);
     }
+
     set(value){
         if(this.cache === value) return;
 
@@ -181,7 +192,7 @@ export class Uniform {
             }
         }else if(this.uniformCount === 3){
             if(Array.isArray(value)){
-                this.gl.uniform3fv( this.uniformLocation, value );
+                this.gl.uniform3fv(this.uniformLocation, value);
             }else{
                 this.gl.uniform3f(this.uniformLocation, value.x, value.y, value.z);
             }

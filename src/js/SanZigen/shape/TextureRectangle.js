@@ -29,9 +29,6 @@ export class TextureRectangle extends Rectangle {
 
         let indices = [0, 2, 1, 3, 2, 1];
 
-
-        console.log(this.uvs);
-
         let shapeAttributes = {
             positions : {name : 'aPosition', itemSize : 2, data: this.vertices},
             uvs : {name: 'aUv', itemSize: 2, data : this.uvs},

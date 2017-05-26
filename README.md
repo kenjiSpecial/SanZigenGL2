@@ -20,3 +20,13 @@ MIT, see [LICENSE.md](http://github.com/mattdesl/budo-gulp-starter/blob/master/L
 ## Code Coments
 
 follow someting like this https://github.com/mrdoob/three.js/blob/master/src/materials/LineBasicMaterial.js
+
+# List
+
+- lighting resarch
+- materail resarch
+
+
+# todo
+
+- Video/Canvas texture

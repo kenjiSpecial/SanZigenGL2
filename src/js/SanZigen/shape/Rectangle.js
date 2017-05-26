@@ -14,8 +14,8 @@ export class Rectangle extends Shape {
         });
 
         this.time = 0;
-        this.width = 100;
-        this.height = 100;
+        this.width = params.width ? params.width : 100;
+        this.height = params.height ? params.height : 100;
         this.x = params.x ? params.x : 200;
         this.y = params.y ? params.y : 200;
 
