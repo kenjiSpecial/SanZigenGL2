@@ -23,10 +23,16 @@ follow someting like this https://github.com/mrdoob/three.js/blob/master/src/mat
 
 # List
 
-- lighting resarch
+- lighting resarch  
 - materail resarch
+- blending function
 
 
 # todo
 
 - Video/Canvas texture
+
+# referrences
+
+- three.js
+- http://stack.gl/

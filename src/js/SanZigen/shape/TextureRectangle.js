@@ -27,7 +27,7 @@ export class TextureRectangle extends Rectangle {
             }
         }
 
-        let indices = [0, 2, 1, 3, 2, 1];
+        let indices = [0, 2, 1, 3, 1, 2];
 
         let shapeAttributes = {
             positions : {name : 'aPosition', itemSize : 2, data: this.vertices},

@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Texture</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="main.css">
+</head>
+<body>
+<div class="description">Rendering of Rectangle with Texture using Texture and TextureRectangle Class.</div>
+<script src="../dest/SanZigenGL2.js"></script>
+<script id="vertexShader" type="x-shader/x-vertex">
+</script>
+<script id="fragmentShader" type="x-shader/x-fragment">
+</script>
+<script>
+    var texture, rectangle;
+    var renderer = new San.WebGLRenderer({antialias: true});
+    document.body.appendChild(renderer.domElement);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    var image = new Image();
+    image.onload = onloaded;
+    image.src = './img/uv_map.jpg';
+
+    function onloaded(){
+
+        texture = new San.Texture({
+            renderer : renderer,
+            image : image
+        });
+        rectangle = new San.TextureRectangle({
+            renderer : renderer,
+            texture : texture
+        });
+        rectangle.x = window.innerWidth/2;
+        rectangle.y = window.innerHeight/2
+        render();
+    }
+
+
+    function render(){
+        var gl = renderer.gl;
+
+        gl.clearColor(0, 0, 0, 1);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        rectangle.update().draw();
+    }
+
+</script>
+</body>
+</html>

@@ -127,18 +127,18 @@ export class Box extends Shape {
             }
         }
 
-        let indices = [0, 2, 1, // front left
-            3, 1, 2, // front right
+        let indices = [ 0, 2, 1, // front left
+            3, 1, 2, //3, 2, 1, // front right
             1, 3, 5, // top left
             7, 5, 3, // top right
             2, 6, 3, // rightSide left
             7, 3, 6, // rightSide right
-            0, 4, 1, // leftSide left
-            5, 1, 4, // leftSide right
+            0, 1, 4, // leftSide left
+            5, 4, 1, // leftSide right
             0, 4, 2, // bottom left
-            6, 4, 2, // bottom right
-            4, 6, 5, // back left
-            7, 5, 6  // back right
+            6, 2, 4, // bottom right
+            4, 5, 6, // back left
+            7, 6, 5,  // back right
         ];
 
 

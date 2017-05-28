@@ -59,6 +59,7 @@ export default class App {
             this.sampleImage2.src = './img/sample1.jpg';
         }, 1000);
 
+        /**
         setTimeout(()=>{
             this.sampleVideo = document.createElement('video');
             // let source = document.createElement('source');
@@ -71,6 +72,7 @@ export default class App {
             this.sampleVideo.addEventListener('loadeddata', ()=>this._onSampleVideoLoaded());
             this.sampleVideo.load();
         }, 2000);
+         */
     }
 
     _onSampleVideoLoaded(){

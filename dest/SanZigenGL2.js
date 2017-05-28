@@ -428,8 +428,6 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -455,7 +453,9 @@ var Attribute = exports.Attribute = function () {
             this.location = this.gl.getAttribLocation(this.program, this.name);
             this.type = params.type;
 
-            if (_typeof(this.location) === -1) {
+            console.log(this.location);
+
+            if (this.location === -1) {
                 console.error("[Attribute.js]: attribute " + this.name + " is not defined");
                 return -1;
             }
@@ -480,6 +480,8 @@ var Attribute = exports.Attribute = function () {
             this.gl.bindBuffer(this.bindTarget, this.buffer);
 
             if (!this.indexArray) {
+                console.log(this.name);
+                console.log(this.location);
                 this.gl.vertexAttribPointer(this.location, this.itemSize, this.gl.FLOAT, false, 0, 0);
                 this.gl.enableVertexAttribArray(this.location);
             }
@@ -829,6 +831,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _utils = require('../utils/utils');
 
+var _index = require('../index');
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Uniform = exports.Uniform = function () {
@@ -1008,9 +1012,19 @@ var Uniform = exports.Uniform = function () {
             this.gl.uniformMatrix2fv(this.uniformLocation, false, arrVal);
         }
     }, {
+        key: 'setTexture',
+        value: function setTexture(texVal) {
+            if (!_index.appProperties.textureNeedsUpdate) return;
+            this.cache = texVal;
+
+            this.gl.activeTexture(texVal.textureUnit);
+            texVal.bind();
+            if (texVal.video) texVal.updateVideo();
+            this.gl.uniform1i(this.uniformLocation, texVal.id);
+        }
+    }, {
         key: 'set',
         value: function set(value) {
-            console.log(arguments.length);
             if (this.cache === value) return;
 
             if (this.uniformCount === 1) {
@@ -1042,7 +1056,7 @@ var Uniform = exports.Uniform = function () {
     return Uniform;
 }();
 
-},{"../utils/utils":26}],9:[function(require,module,exports){
+},{"../index":9,"../utils/utils":30}],9:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1220,6 +1234,15 @@ Object.defineProperty(exports, 'Rectangle', {
   }
 });
 
+var _TextureRectangle = require('./shape/TextureRectangle');
+
+Object.defineProperty(exports, 'TextureRectangle', {
+  enumerable: true,
+  get: function get() {
+    return _TextureRectangle.TextureRectangle;
+  }
+});
+
 var _Box = require('./shape/Box');
 
 Object.defineProperty(exports, 'Box', {
@@ -1229,7 +1252,16 @@ Object.defineProperty(exports, 'Box', {
   }
 });
 
-var _PerspectiveCamera = require('./Camera/PerspectiveCamera');
+var _Texture = require('./texture/Texture');
+
+Object.defineProperty(exports, 'Texture', {
+  enumerable: true,
+  get: function get() {
+    return _Texture.Texture;
+  }
+});
+
+var _PerspectiveCamera = require('./camera/PerspectiveCamera');
 
 Object.defineProperty(exports, 'PerspectiveCamera', {
   enumerable: true,
@@ -1238,7 +1270,25 @@ Object.defineProperty(exports, 'PerspectiveCamera', {
   }
 });
 
-},{"./Camera/PerspectiveCamera":3,"./core/Attribute":4,"./core/Clock":5,"./core/ProgramRenderer":6,"./core/TransformFeedback":7,"./core/Uniform":8,"./math/Color":11,"./math/Euler":12,"./math/Math":13,"./math/Matrix4":14,"./math/Quaternion":15,"./math/Vector2":16,"./math/Vector3":17,"./renderers/WebGLRenderer":18,"./renderers/webgl/WebGLProgram":19,"./renderers/webgl/WebGLShader":20,"./shape/Box":21,"./shape/Circle":22,"./shape/Rectangle":23,"./shape/Shape":24,"./shape/Triangle":25}],10:[function(require,module,exports){
+var _AppProperties = require('./utils/AppProperties');
+
+Object.defineProperty(exports, 'appProperties', {
+  enumerable: true,
+  get: function get() {
+    return _AppProperties.appProperties;
+  }
+});
+
+var _Constants = require('./utils/Constants');
+
+Object.defineProperty(exports, 'Constants', {
+  enumerable: true,
+  get: function get() {
+    return _Constants.Constants;
+  }
+});
+
+},{"./camera/PerspectiveCamera":3,"./core/Attribute":4,"./core/Clock":5,"./core/ProgramRenderer":6,"./core/TransformFeedback":7,"./core/Uniform":8,"./math/Color":11,"./math/Euler":12,"./math/Math":13,"./math/Matrix4":14,"./math/Quaternion":15,"./math/Vector2":16,"./math/Vector3":17,"./renderers/WebGLRenderer":18,"./renderers/webgl/WebGLProgram":19,"./renderers/webgl/WebGLShader":20,"./shape/Box":21,"./shape/Circle":22,"./shape/Rectangle":23,"./shape/Shape":24,"./shape/TextureRectangle":25,"./shape/Triangle":26,"./texture/Texture":27,"./utils/AppProperties":28,"./utils/Constants":29}],10:[function(require,module,exports){
 'use strict';
 
 window.San = require('./index');
@@ -4847,6 +4897,13 @@ var WebGLRenderer = function () {
         this._canvas = params.canvas || document.createElement('canvas');
         this.domElement = this._canvas;
 
+        this.capabilities = {};
+        this.currentClearStencil = null;
+        this.currentClearDepth = null;
+        this.currentDepthFunc = null;
+        this.currentCullFace = null;
+        this.isCurrentFlipSided = null;
+
         try {
             var attributes = {
                 alpha: _alpha,
@@ -4859,6 +4916,8 @@ var WebGLRenderer = function () {
                 throw 'Error creating webgl2 context';
             }
 
+            this._init();
+
             this._canvas.addEventListener('webglcontextlost', this.onContextLost, false);
         } catch (error) {
             console.error('WebGLRenderer: ' + error);
@@ -4866,6 +4925,61 @@ var WebGLRenderer = function () {
     }
 
     _createClass(WebGLRenderer, [{
+        key: 'clear',
+        value: function clear() {
+            var color = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+            var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+            var stencil = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+
+            var bits = 0;
+            if (color) bits |= this.gl.COLOR_BUFFER_BIT;
+            if (depth) bits |= this.gl.DEPTH_BUFFER_BIT;
+            if (stencil) bits |= this.gl.STENCIL_BUFFER_BIT;
+
+            this.gl.clear(bits);
+        }
+    }, {
+        key: 'clearColor',
+        value: function clearColor(r, g, b, a) {
+            this.gl.clearColor(r, g, b, a);
+        }
+    }, {
+        key: '_init',
+        value: function _init() {
+            this.clearColor(0, 0, 0, 1);
+            this.clearDepth(1);
+            this.clearStencil(0);
+
+            this.enable(this.gl.DEPTH_TEST);
+            this.setDepthFunc();
+
+            this.enable(this.gl.DEPTH_TEST);
+            this.setDepthFunc(this.gl.LEQUAL);
+
+            this.setFlipSided(false);
+            this.enable(this.gl.CULL_FACE);
+            this.setCullFace();
+
+            // this.enable(this.gl.BLEND);
+            // this.setBlending(this.gl.BLEND);
+        }
+    }, {
+        key: 'clearStencil',
+        value: function clearStencil(stencil) {
+            if (this.currentClearStencil !== stencil) {
+                this.gl.clearStencil(stencil);
+                this.currentClearStencil = stencil;
+            }
+        }
+    }, {
+        key: 'clearDepth',
+        value: function clearDepth(depth) {
+            if (this.currentClearDepth !== depth) {
+                this.gl.clearDepth(depth);
+                this.currentClearDepth = depth;
+            }
+        }
+    }, {
         key: 'onContextLost',
         value: function onContextLost(event) {
 
@@ -4893,6 +5007,69 @@ var WebGLRenderer = function () {
 
             this.gl.viewport(0, 0, width, height);
         }
+    }, {
+        key: 'enable',
+        value: function enable(id) {
+
+            if (this.capabilities[id] !== true) {
+
+                this.gl.enable(id);
+                this.capabilities[id] = true;
+            }
+        }
+    }, {
+        key: 'disable',
+        value: function disable(id) {
+
+            if (this.capabilities[id] !== false) {
+
+                this.gl.disable(id);
+                this.capabilities[id] = false;
+            }
+        }
+    }, {
+        key: 'setDepthFunc',
+        value: function setDepthFunc() {
+            var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0x0203;
+            // LEQUAL	0x0203 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Constants
+
+            if (this.currentDepthFunc === id) this.gl.depthFunc(id);
+
+            this.currentDepthFunc = id;
+        }
+
+        // https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace
+
+    }, {
+        key: 'setFlipSided',
+        value: function setFlipSided(isFlipSided) {
+            if (this.isCurrentFlipSided !== isFlipSided) {
+                if (isFlipSided) {
+                    this.gl.frontFace(this.gl.CW);
+                } else {
+                    this.gl.frontFace(this.gl.CCW);
+                }
+
+                this.isCurrentFlipSided = isFlipSided;
+            }
+        }
+
+        // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Constants
+        // https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace
+
+    }, {
+        key: 'setCullFace',
+        value: function setCullFace() /** gl.FRONT_AND_BACK **/{
+            var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0x0408;
+
+            if (id !== this.currentCullFace) {
+                this.gl.cullFace(this.gl.FRONT);
+                this.currentCullFace = id;
+            }
+        }
+
+        // setBlending(id=)
+
     }]);
 
     return WebGLRenderer;
@@ -5146,18 +5323,17 @@ var Box = exports.Box = function (_Shape) {
             }
 
             var indices = [0, 2, 1, // front left
-            3, 1, 2, // front right
+            3, 1, 2, //3, 2, 1, // front right
             1, 3, 5, // top left
             7, 5, 3, // top right
             2, 6, 3, // rightSide left
             7, 3, 6, // rightSide right
-            0, 4, 1, // leftSide left
-            5, 1, 4, // leftSide right
+            0, 1, 4, // leftSide left
+            5, 4, 1, // leftSide right
             0, 4, 2, // bottom left
-            6, 4, 2, // bottom right
-            4, 6, 5, // back left
-            7, 5, 6 // back right
-            ];
+            6, 2, 4, // bottom right
+            4, 5, 6, // back left
+            7, 6, 5];
 
             var shapeAttributes = {
                 positions: { name: 'aPosition', itemSize: 3, data: this.vertices },
@@ -5409,13 +5585,13 @@ var Rectangle = exports.Rectangle = function (_Shape) {
 
         var _this = _possibleConstructorReturn(this, (Rectangle.__proto__ || Object.getPrototypeOf(Rectangle)).call(this, {
             renderer: params.renderer,
-            vertexShaderSource: glslify(["#version 300 es\n#define GLSLIFY 1\n\nin vec2 aPosition;\n\nuniform vec2 uWindow;\nuniform vec2 uPosition;\n\nvoid main(){\n\n    float xPos =   ( aPosition.x + uPosition.x ) / uWindow.x * 2.0 - 1.0;\n    float yPos = - ( aPosition.y + uPosition.y ) / uWindow.y * 2.0 + 1.0;\n\n    gl_Position = vec4(xPos, yPos, 0.0, 1.0);\n}"]).trim(),
-            fragmentShaderSource: glslify(["#version 300 es\nprecision mediump float;\n#define GLSLIFY 1\n\nuniform vec3 uColor;\n\nout vec4 outColor;\n\nvoid main() {\n  // Just set the output to a constant redish-purple\n  outColor = vec4(uColor, 1.0);\n}"]).trim()
+            vertexShaderSource: params.vertexShaderSource ? params.vertexShaderSource : glslify(["#version 300 es\n#define GLSLIFY 1\n\nin vec2 aPosition;\n\nuniform vec2 uWindow;\nuniform vec2 uPosition;\n\nvoid main(){\n\n    float xPos =   ( aPosition.x + uPosition.x ) / uWindow.x * 2.0 - 1.0;\n    float yPos = - ( aPosition.y + uPosition.y ) / uWindow.y * 2.0 + 1.0;\n\n    gl_Position = vec4(xPos, yPos, 0.0, 1.0);\n}"]).trim(),
+            fragmentShaderSource: params.fragmentShaderSource ? params.fragmentShaderSource : paramglslify("./shaders/Rectangle.shader.frag").trim()
         }));
 
         _this.time = 0;
-        _this.width = 100;
-        _this.height = 100;
+        _this.width = params.width ? params.width : 100;
+        _this.height = params.height ? params.height : 100;
         _this.x = params.x ? params.x : 200;
         _this.y = params.y ? params.y : 200;
 
@@ -5487,7 +5663,6 @@ var Rectangle = exports.Rectangle = function (_Shape) {
             var dt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1 / 60;
 
             this.time += dt;
-
             return this;
         }
     }, {
@@ -5581,6 +5756,7 @@ var Shape = exports.Shape = function (_EventEmitter) {
     }, {
         key: 'initializeAttributes',
         value: function initializeAttributes(attributes) {
+
             for (var key in attributes) {
                 this.attributes[key] = new _Attribute.Attribute({
                     gl: this.gl,
@@ -5604,6 +5780,87 @@ var Shape = exports.Shape = function (_EventEmitter) {
 }(EventEmitter);
 
 },{"../core/Attribute":4,"../core/Uniform":8,"eventemitter3":1}],25:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.TextureRectangle = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _index = require('../index');
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var glslify = require('glslify');
+
+var TextureRectangle = exports.TextureRectangle = function (_Rectangle) {
+    _inherits(TextureRectangle, _Rectangle);
+
+    function TextureRectangle(params) {
+        _classCallCheck(this, TextureRectangle);
+
+        params.vertexShaderSource = glslify(["#version 300 es\n#define GLSLIFY 1\n\nin vec2 aPosition;\nin vec2 aUv;\n\nuniform vec2 uWindow;\nuniform vec2 uPosition;\nuniform float uRotation;\n\nout vec2 vUv;\n\nvoid main(){\n    float cosRot = cos(uRotation);\n    float sinRot = sin(uRotation);\n    mat3 m = mat3(\n        cosRot, sinRot, 0.0,\n        -sinRot, cosRot, 0.0,\n        0.0, 0.0, 1.0\n    );\n    vec3 shapePosition = vec3(aPosition, 1.0);\n    vec3 curShapePosition = m * shapePosition;\n\n    float xPos =   ( uPosition.x + curShapePosition.x ) / uWindow.x * 2.0 - 1.0;\n    float yPos = - ( uPosition.y + curShapePosition.y ) / uWindow.y * 2.0 + 1.0;\n\n    vUv = aUv;\n\n    gl_Position = vec4(xPos, yPos, 0.0, 1.0);\n}"]).trim();
+        params.fragmentShaderSource = glslify(["#version 300 es\nprecision mediump float;\n#define GLSLIFY 1\n\nuniform sampler2D uSampler;\n\nin vec2 vUv;\nout vec4 outColor;\n\nvoid main() {\n  outColor = texture(uSampler, vUv);\n}"]).trim();
+
+        var _this = _possibleConstructorReturn(this, (TextureRectangle.__proto__ || Object.getPrototypeOf(TextureRectangle)).call(this, params));
+
+        _this.texture = params.texture;
+        return _this;
+    }
+
+    _createClass(TextureRectangle, [{
+        key: '_createShape',
+        value: function _createShape() {
+
+            this.vertices = new Float32Array(2 * 2 * 2);
+            this.uvs = new Float32Array(2 * 2 * 2);
+
+            for (var xx = 0; xx < 2; xx++) {
+                var xPos = (xx - 1) * this.width + this.width / 2;
+                for (var yy = 0; yy < 2; yy++) {
+                    var yPos = (yy - 1) * this.height + this.height / 2;
+                    this.vertices[(xx * 2 + yy) * 2] = xPos;
+                    this.vertices[(xx * 2 + yy) * 2 + 1] = yPos;
+
+                    this.uvs[(xx * 2 + yy) * 2] = xx;
+                    this.uvs[(xx * 2 + yy) * 2 + 1] = yy;
+                }
+            }
+
+            var indices = [0, 2, 1, 3, 1, 2];
+
+            var shapeAttributes = {
+                positions: { name: 'aPosition', itemSize: 2, data: this.vertices },
+                uvs: { name: 'aUv', itemSize: 2, data: this.uvs },
+                indices: { name: 'indices', indexArray: true, data: new Uint16Array(indices) }
+            };
+
+            this.shapeVao = this.gl.createVertexArray();
+            this.gl.bindVertexArray(this.shapeVao);
+
+            this.initializeAttributes(shapeAttributes);
+
+            return indices.length;
+        }
+    }, {
+        key: '_updateUniforms',
+        value: function _updateUniforms() {
+            this.uniforms['uPosition'].set2f(this.x, this.y);
+            this.uniforms['uWindow'].set2f(window.innerWidth, window.innerHeight);
+            this.uniforms['uSampler'].setTexture(this.texture);
+        }
+    }]);
+
+    return TextureRectangle;
+}(_index.Rectangle);
+
+},{"../index":9,"glslify":2}],26:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5757,7 +6014,147 @@ var Triangle = exports.Triangle = function (_Shape) {
     return Triangle;
 }(_Shape2.Shape);
 
-},{"../math/Color":11,"../math/Vector2":16,"../math/Vector3":17,"./Shape":24,"glslify":2}],26:[function(require,module,exports){
+},{"../math/Color":11,"../math/Vector2":16,"../math/Vector3":17,"./Shape":24,"glslify":2}],27:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.Texture = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _index = require('../index');
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var EventEmitter = require('eventemitter3');
+
+var Texture = exports.Texture = function () {
+    function Texture(params) {
+        var _this = this;
+
+        _classCallCheck(this, Texture);
+
+        this.id = _index.appProperties.textureNumber++;
+        this.renderer = params.renderer;
+
+        this.gl = this.renderer.gl;
+        this.texture = this.gl.createTexture();
+        this.textureUnit = this.gl['TEXTURE' + this.id];
+
+        if (params.image) {
+            this.image = params.image;
+            this.bind();
+            this.updateImage();
+            this.setParameters();
+        } else if (params.imgUrl) {
+            this.image = new Image();
+            this.image.onload = function () {
+                return _this._onLoadImg();
+            };
+            this.image.src = params.imgUrl;
+            this.isLoaded = false;
+        } else if (params.video) {
+            this.video = params.video;
+            this.video.loop = true;
+            // console.log(this.video);
+            // this.video.addEventListener('playing', ()=>{
+            // console.log('???');
+            this.bind();
+            this.setCustomParameters();
+            this.updateVideo();
+            console.log('??');
+            _index.appProperties.textureNeedsUpdate = true;
+            // });
+            if (params.autoPlay) this.video.play();
+
+            // this.setParameters();
+        } else {
+            console.error('you don\'t have neighter image nor imgUrl.');
+        }
+
+        _index.appProperties.textureNeedsUpdate = true;
+    }
+
+    _createClass(Texture, [{
+        key: 'playVideo',
+        value: function playVideo() {
+            if (this.video) this.video.play();
+        }
+    }, {
+        key: 'pauseVideo',
+        value: function pauseVideo() {
+            if (this.video) this.video.pause();
+        }
+    }, {
+        key: '_onLoadImg',
+        value: function _onLoadImg() {
+            this.isLoaded = true;
+            this.bind();
+            this.updateImage();
+        }
+    }, {
+        key: 'updateImage',
+        value: function updateImage() {
+            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image);
+        }
+    }, {
+        key: 'updateVideo',
+        value: function updateVideo() {
+            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGB, this.gl.RGB, this.gl.UNSIGNED_BYTE, this.video);
+        }
+    }, {
+        key: 'bind',
+        value: function bind() {
+            this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
+        }
+    }, {
+        key: 'setParameters',
+        value: function setParameters() {
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_NEAREST);
+            this.gl.generateMipmap(this.gl.TEXTURE_2D);
+        }
+    }, {
+        key: 'setCustomParameters',
+        value: function setCustomParameters() {
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+        }
+    }, {
+        key: 'update',
+        value: function update() {
+            _index.appProperties.textureNeedsUpdate = true;
+        }
+    }]);
+
+    return Texture;
+}();
+
+},{"../index":9,"eventemitter3":1}],28:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+var appProperties = exports.appProperties = {
+    textureNumber: 0,
+    textureNeedsUpdate: false
+};
+
+},{}],29:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var Constant = {};
+
+exports.Constant = Constant;
+
+},{}],30:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

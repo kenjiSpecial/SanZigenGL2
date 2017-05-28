@@ -43,7 +43,11 @@ export default class App {
         this.positionFolder = this.gui.addFolder('uPosition');
         this.positionFolder.add(this.box.position, 'z', -1000, 100).onChange(()=>{ this.box.updateModelMatrix(); });
         this.rotationFolder = this.gui.addFolder('rotation');
+        // this.rotationFolder.add(this.box.rotation, 'y', -Math.PI, Math.PI).step(0.01);
+        this.rotationFolder.add(this.box.rotation, 'x', -Math.PI, Math.PI).step(0.01);
         this.rotationFolder.add(this.box.rotation, 'y', -Math.PI, Math.PI).step(0.01);
+        this.rotationFolder.add(this.box.rotation, 'z', -Math.PI, Math.PI).step(0.01);
+        this.rotationFolder.open();
         this.cameraPositionFolder = this.gui.addFolder('camera');
         this.cameraPositionFolder.add(this.camera.position, 'x', -500, 500).onChange(() => this._onChangeCameraPosition());
         this.cameraPositionFolder.add(this.camera.position, 'y', -500, 500).onChange(() => this._onChangeCameraPosition());
