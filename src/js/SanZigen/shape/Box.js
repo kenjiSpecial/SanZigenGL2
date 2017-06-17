@@ -6,8 +6,8 @@ export class Box extends Shape {
     constructor(params){
         super({
             renderer: params.renderer,
-            vertexShaderSource: glslify("./shaders/Box.shader.vert").trim(),
-            fragmentShaderSource: glslify("./shaders/Box.shader.frag").trim(),
+            vertexShaderSource   : params.vertexShaderSource   ? params.vertexShaderSource   : glslify("./shaders/Box.shader.vert").trim(),
+            fragmentShaderSource : params.fragmentShaderSource ? params.fragmentShaderSource : glslify("./shaders/Box.shader.frag").trim(),
         });
 
         this._onChangeRotation = this._onChangeRotation.bind(this);
@@ -23,7 +23,6 @@ export class Box extends Shape {
 
         this.position = params.position ? params.position : new Vector3(x, y, z);
         this.scale = params.scale ? params.scale : new Vector3(1, 1, 1);
-
 
         this.verticeNum = params.verticeNum || 100;
         this.vertices = new Float32Array((this.verticeNum + 1) * 2);
@@ -43,10 +42,8 @@ export class Box extends Shape {
         this.rotationMat = new Matrix4();
         this.rotation.onChange(this._onChangeRotation);
 
-
         this.modelMatrix = new Matrix4();
         this.updateModelMatrix();
-
 
         this.projectionMatrix = new Matrix4();
         this.projectionMatrixArray = new Float32Array(this.projectionMatrix.toArray());
@@ -69,7 +66,6 @@ export class Box extends Shape {
     }
 
     updateViewMatrix(value){
-        console.log(value);
         if( value instanceof Matrix4 ){
             this.viewMatrixArray = new Float32Array(value.toArray());
         }else if(value instanceof  PerspectiveCamera){
@@ -179,6 +175,7 @@ export class Box extends Shape {
 
     draw(){
         let gl = this.renderer.gl;
+
 
         gl.useProgram(this.program);
         gl.bindVertexArray(this.shapeVao);

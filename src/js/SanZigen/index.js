@@ -12,6 +12,7 @@ export {Attribute} from './core/Attribute';
 export {Clock} from './core/Clock';
 
 export {_Math as Math} from './math/Math';
+export {_Math as SanMath} from './math/Math';
 export {Vector2} from './math/Vector2';
 export {Vector3} from './math/Vector3';
 export {Matrix4} from './math/Matrix4';
@@ -25,6 +26,9 @@ export {Circle} from './shape/Circle'
 export {Rectangle} from './shape/Rectangle';
 export {TextureRectangle} from './shape/TextureRectangle';
 export {Box} from './shape/Box';
+export {CustomBox} from './shape/CustomBox';
+export {Line} from './shape/Line';
+export {ArrowHelper} from './shape/ArrowHelper';
 
 export {Texture} from './texture/Texture';
 

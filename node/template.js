@@ -1,6 +1,6 @@
 
 module.exports = {
-    articleTemplate : function(title, titleId, url, imgUrl, title, desc, date){
+    articleTemplate : function(title, titleId, url, imgUrl, title, desc, date, sampleCodeUrl, moduleCodeUrl ){
         return `
 <a class="article-${titleId} article-link" href="${url}">
      <div class="article">
@@ -8,6 +8,7 @@ module.exports = {
          <h2 class="article-title">${title}</h2>
          <div class="article-date">${date}</div>
          <p class="article-desc">${desc}</p>
+         <a href="${sampleCodeUrl}" target="_blank">Sample Code</a> | <a href="${moduleCodeUrl}">Module Code</a>
      </div>
 </a>
 `
@@ -23,7 +24,9 @@ module.exports = {
     <link rel="stylesheet" type="text/css" href="main.css">
 </head>
 <body>
+<h1 class="title">${title}</h1>
 <div class="description"></div>
+<div class="codeUrl"><a href="" target="_blank">Sample Code</a> | <a href="">Module Code</a></div>
 <script src="../dest/SanZigenGL2.js"></script>
 <script id="vertexShader" type="x-shader/x-vertex">
 </script>

@@ -39,9 +39,7 @@ export class Attribute {
     bind(){
         this.gl.bindBuffer(this.bindTarget, this.buffer);
 
-        if(!this.indexArray){
-            console.log(this.name);
-            console.log(this.location);
+        if(!this.indexArray){;
             this.gl.vertexAttribPointer(this.location, this.itemSize, this.gl.FLOAT, false, 0, 0);
             this.gl.enableVertexAttribArray(this.location);
         }

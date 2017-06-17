@@ -7,6 +7,7 @@ export  class Shape extends EventEmitter{
     constructor(params) {
         super();
         params = params || {};
+
         this.uniforms = {};
         this.attributes = {};
         try {

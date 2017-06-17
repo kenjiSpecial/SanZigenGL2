@@ -8,9 +8,10 @@
 // import App from './apps/AppCircle';
 // import App from './apps/AppRectangles';
 // import App from './apps/AppBox';
-import App from './apps/AppBoxWithCamera';
+// import App from './apps/AppBoxWithCamera';
+// import App from './apps/AppBoxWithLight';
+import App from './apps/AppArrowHelper'
 
-// import App from './apps/AppTexture';
 
 let app;
 
