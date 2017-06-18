@@ -18,8 +18,6 @@ export class Attribute {
             this.location = this.gl.getAttribLocation(this.program, this.name);
             this.type = params.type;
 
-            console.log(this.location);
-
             if( this.location === -1){
                 console.error(`[Attribute.js]: attribute ${this.name} is not defined`)
                 return -1;

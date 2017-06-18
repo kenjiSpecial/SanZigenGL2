@@ -1,7 +1,6 @@
 body {
     margin: 0;
     padding: 0;
-    overflow: hidden;
 
     font-family: 'Roboto', sans-serif;
     background: white;
@@ -17,20 +16,29 @@ h1{
     margin-bottom: 50px;
 }
 
-a {
+a{
+    color: black;
+}
+
+a:hover{
+    color: #0000ff;
+}
+
+a.article-link {
     color: black;
     text-decoration: none;
     display: block;
-    float: left;
 
 }
 
-.article-link{
+.article-wrapper{
+    float: left;
     width: 30%;
     margin-right: 5%;
+    margin-bottom: 40px;
 }
 
-.article-link:nth-child(3n+0) {
+.article-wrapper:nth-child(3n+0) {
     /*background: red;*/
     margin-right: 0;
 }

@@ -23,3 +23,17 @@ a{
 .description{
     display: none;
 }
+
+
+.content{
+    display: none;
+    position: absolute;
+    top : 40px;
+    left: 40px;
+    z-index: 10000;
+
+}
+
+.title{
+    font-size: 18px;
+}

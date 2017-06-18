@@ -69,9 +69,6 @@ export default class App {
             SanMath.randFloat(-100, 100),
             SanMath.randFloat(-100, 100),
         );
-
-        console.log(pt0);
-        cl
     }
 
     _onChangeCameraPosition(){

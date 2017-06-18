@@ -2,15 +2,17 @@
 module.exports = {
     articleTemplate : function(title, titleId, url, imgUrl, title, desc, date, sampleCodeUrl, moduleCodeUrl ){
         return `
-<a class="article-${titleId} article-link" href="${url}">
+<div class="article-${titleId} article-wrapper">
      <div class="article">
-         <img class="article-img" src="${imgUrl}" alt="">
-         <h2 class="article-title">${title}</h2>
+         <a href="${url}"><img class="article-img" src="${imgUrl}" alt=""></a>
+         <a href="${url}"><h2 class="article-title">${title}</h2></a>
          <div class="article-date">${date}</div>
          <p class="article-desc">${desc}</p>
-         <a href="${sampleCodeUrl}" target="_blank">Sample Code</a> | <a href="${moduleCodeUrl}">Module Code</a>
+         <p class="article-codes">
+            <a class="sampleCodeUrl" href="${sampleCodeUrl}" target="_blank">Sample Code</a> <span> | </span> <a class="moduleCodeUrl" href="${moduleCodeUrl}">Module Code</a>
+         </p>
      </div>
-</a>
+</div>
 `
     },
     htmlTemplate : function(title){
@@ -24,9 +26,11 @@ module.exports = {
     <link rel="stylesheet" type="text/css" href="main.css">
 </head>
 <body>
-<h1 class="title">${title}</h1>
-<div class="description"></div>
-<div class="codeUrl"><a href="" target="_blank">Sample Code</a> | <a href="">Module Code</a></div>
+<div class="content">
+    <h1 class="title">${title}</h1>
+    <div class="description"></div>
+    <div class="codeUrl"><a href="" target="_blank">Sample Code</a> | <a href="">Module Code</a></div>
+</div>
 <script src="../dest/SanZigenGL2.js"></script>
 <script id="vertexShader" type="x-shader/x-vertex">
 </script>

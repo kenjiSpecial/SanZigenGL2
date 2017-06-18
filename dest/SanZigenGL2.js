@@ -453,8 +453,6 @@ var Attribute = exports.Attribute = function () {
             this.location = this.gl.getAttribLocation(this.program, this.name);
             this.type = params.type;
 
-            console.log(this.location);
-
             if (this.location === -1) {
                 console.error("[Attribute.js]: attribute " + this.name + " is not defined");
                 return -1;
@@ -480,8 +478,7 @@ var Attribute = exports.Attribute = function () {
             this.gl.bindBuffer(this.bindTarget, this.buffer);
 
             if (!this.indexArray) {
-                console.log(this.name);
-                console.log(this.location);
+                ;
                 this.gl.vertexAttribPointer(this.location, this.itemSize, this.gl.FLOAT, false, 0, 0);
                 this.gl.enableVertexAttribArray(this.location);
             }
@@ -1056,7 +1053,7 @@ var Uniform = exports.Uniform = function () {
     return Uniform;
 }();
 
-},{"../index":9,"../utils/utils":30}],9:[function(require,module,exports){
+},{"../index":9,"../utils/utils":33}],9:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1138,6 +1135,12 @@ Object.defineProperty(exports, 'Clock', {
 var _Math2 = require('./math/Math');
 
 Object.defineProperty(exports, 'Math', {
+  enumerable: true,
+  get: function get() {
+    return _Math2._Math;
+  }
+});
+Object.defineProperty(exports, 'SanMath', {
   enumerable: true,
   get: function get() {
     return _Math2._Math;
@@ -1252,6 +1255,33 @@ Object.defineProperty(exports, 'Box', {
   }
 });
 
+var _CustomBox = require('./shape/CustomBox');
+
+Object.defineProperty(exports, 'CustomBox', {
+  enumerable: true,
+  get: function get() {
+    return _CustomBox.CustomBox;
+  }
+});
+
+var _Line = require('./shape/Line');
+
+Object.defineProperty(exports, 'Line', {
+  enumerable: true,
+  get: function get() {
+    return _Line.Line;
+  }
+});
+
+var _ArrowHelper = require('./shape/ArrowHelper');
+
+Object.defineProperty(exports, 'ArrowHelper', {
+  enumerable: true,
+  get: function get() {
+    return _ArrowHelper.ArrowHelper;
+  }
+});
+
 var _Texture = require('./texture/Texture');
 
 Object.defineProperty(exports, 'Texture', {
@@ -1288,7 +1318,7 @@ Object.defineProperty(exports, 'Constants', {
   }
 });
 
-},{"./camera/PerspectiveCamera":3,"./core/Attribute":4,"./core/Clock":5,"./core/ProgramRenderer":6,"./core/TransformFeedback":7,"./core/Uniform":8,"./math/Color":11,"./math/Euler":12,"./math/Math":13,"./math/Matrix4":14,"./math/Quaternion":15,"./math/Vector2":16,"./math/Vector3":17,"./renderers/WebGLRenderer":18,"./renderers/webgl/WebGLProgram":19,"./renderers/webgl/WebGLShader":20,"./shape/Box":21,"./shape/Circle":22,"./shape/Rectangle":23,"./shape/Shape":24,"./shape/TextureRectangle":25,"./shape/Triangle":26,"./texture/Texture":27,"./utils/AppProperties":28,"./utils/Constants":29}],10:[function(require,module,exports){
+},{"./camera/PerspectiveCamera":3,"./core/Attribute":4,"./core/Clock":5,"./core/ProgramRenderer":6,"./core/TransformFeedback":7,"./core/Uniform":8,"./math/Color":11,"./math/Euler":12,"./math/Math":13,"./math/Matrix4":14,"./math/Quaternion":15,"./math/Vector2":16,"./math/Vector3":17,"./renderers/WebGLRenderer":18,"./renderers/webgl/WebGLProgram":19,"./renderers/webgl/WebGLShader":20,"./shape/ArrowHelper":21,"./shape/Box":22,"./shape/Circle":23,"./shape/CustomBox":24,"./shape/Line":25,"./shape/Rectangle":26,"./shape/Shape":27,"./shape/TextureRectangle":28,"./shape/Triangle":29,"./texture/Texture":30,"./utils/AppProperties":31,"./utils/Constants":32}],10:[function(require,module,exports){
 'use strict';
 
 window.San = require('./index');
@@ -5170,6 +5200,70 @@ function webGLShader(gl, type, shaderSource) {
 }
 
 },{}],21:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+        value: true
+});
+exports.ArrowHelper = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _index = require("../index");
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var ArrowHelper = exports.ArrowHelper = function (_Line) {
+        _inherits(ArrowHelper, _Line);
+
+        function ArrowHelper(params) {
+                _classCallCheck(this, ArrowHelper);
+
+                var _this = _possibleConstructorReturn(this, (ArrowHelper.__proto__ || Object.getPrototypeOf(ArrowHelper)).call(this, params));
+
+                _this.size = params.size ? params.size : 10;
+                _this.fromPt = new _index.Vector3(0, 0, 0);
+                _this.upVec = new _index.Vector3(0, 1, 0);
+                _this.direction = params.direction ? params.direction : new _index.Vector3(1, 0, 0);
+
+                _this._updatePts();
+                _this.updateDirection();
+                return _this;
+        }
+
+        _createClass(ArrowHelper, [{
+                key: "_updatePts",
+                value: function _updatePts() {
+                        var theta = Math.PI * 4 / 5;
+                        var rad = Math.max(3, 12 / 100 * this.size);
+
+                        var pt0 = new _index.Vector3(0, 0, 0);
+                        var pt1 = new _index.Vector3(this.size, 0, 0);
+                        var pt2 = new _index.Vector3(this.size + rad * Math.cos(theta), rad * Math.sin(theta), 0);
+                        var pt3 = pt1.clone();
+                        var pt4 = new _index.Vector3(this.size + rad * Math.cos(-theta), rad * Math.sin(-theta), 0);
+                        var pt5 = pt1.clone();
+
+                        this.updatePts([pt0, pt1, pt2, pt3, pt4, pt5]);
+                }
+        }, {
+                key: "updateDirection",
+                value: function updateDirection() {
+                        this.rotationQuaternion.setFromUnitVectors(new _index.Vector3(1, 0, 0), this.direction);
+                        this.updateModelMatrix();
+
+                        return this;
+                }
+        }]);
+
+        return ArrowHelper;
+}(_index.Line);
+
+},{"../index":9}],22:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -5197,8 +5291,8 @@ var Box = exports.Box = function (_Shape) {
 
         var _this = _possibleConstructorReturn(this, (Box.__proto__ || Object.getPrototypeOf(Box)).call(this, {
             renderer: params.renderer,
-            vertexShaderSource: glslify(["#version 300 es\n#define GLSLIFY 1\n\nin vec3 aPosition;\n\nuniform mat4 projectionMatrix;\nuniform mat4 modelMatrix;\nuniform mat4 viewMatrix;\n\nvoid main(){\n    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPosition, 1.0);\n}"]).trim(),
-            fragmentShaderSource: glslify(["#version 300 es\nprecision mediump float;\n#define GLSLIFY 1\n\nuniform vec3 uColor;\n\nout vec4 outColor;\n\nvoid main() {\n  // Just set the output to a constant redish-purple\n  outColor = vec4(uColor, 1.0);\n}"]).trim()
+            vertexShaderSource: params.vertexShaderSource ? params.vertexShaderSource : glslify(["#version 300 es\n#define GLSLIFY 1\n\nin vec3 aPosition;\n\nuniform mat4 projectionMatrix;\nuniform mat4 modelMatrix;\nuniform mat4 viewMatrix;\n\nvoid main(){\n    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPosition, 1.0);\n}"]).trim(),
+            fragmentShaderSource: params.fragmentShaderSource ? params.fragmentShaderSource : glslify(["#version 300 es\nprecision mediump float;\n#define GLSLIFY 1\n\nuniform vec3 uColor;\n\nout vec4 outColor;\n\nvoid main() {\n  // Just set the output to a constant redish-purple\n  outColor = vec4(uColor, 1.0);\n}"]).trim()
         }));
 
         _this._onChangeRotation = _this._onChangeRotation.bind(_this);
@@ -5262,7 +5356,6 @@ var Box = exports.Box = function (_Shape) {
     }, {
         key: 'updateViewMatrix',
         value: function updateViewMatrix(value) {
-            console.log(value);
             if (value instanceof _index.Matrix4) {
                 this.viewMatrixArray = new Float32Array(value.toArray());
             } else if (value instanceof _index.PerspectiveCamera) {
@@ -5398,7 +5491,7 @@ var Box = exports.Box = function (_Shape) {
     return Box;
 }(_index.Shape);
 
-},{"../index":9,"glslify":2}],22:[function(require,module,exports){
+},{"../index":9,"glslify":2}],23:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5551,7 +5644,245 @@ var Circle = exports.Circle = function (_Shape) {
     return Circle;
 }(_Shape2.Shape);
 
-},{"../math/Color":11,"../math/Vector2":16,"../math/Vector3":17,"./Shape":24,"glslify":2}],23:[function(require,module,exports){
+},{"../math/Color":11,"../math/Vector2":16,"../math/Vector3":17,"./Shape":27,"glslify":2}],24:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.CustomBox = undefined;
+
+var _index = require('../index');
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var glslify = require('glslify');
+
+var CustomBox = exports.CustomBox = function (_Box) {
+    _inherits(CustomBox, _Box);
+
+    function CustomBox(params) {
+        _classCallCheck(this, CustomBox);
+
+        return _possibleConstructorReturn(this, (CustomBox.__proto__ || Object.getPrototypeOf(CustomBox)).call(this, params));
+    }
+
+    return CustomBox;
+}(_index.Box);
+
+},{"../index":9,"glslify":2}],25:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.Line = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _index = require('../index');
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var EventEmitter = require('eventemitter3');
+var glslify = require('glslify');
+
+var Line = exports.Line = function (_EventEmitter) {
+    _inherits(Line, _EventEmitter);
+
+    function Line(params) {
+        _classCallCheck(this, Line);
+
+        var _this = _possibleConstructorReturn(this, (Line.__proto__ || Object.getPrototypeOf(Line)).call(this));
+
+        params = params || {};
+        params.vertexShaderSource = glslify(["#version 300 es\nprecision mediump float;\n#define GLSLIFY 1\n\nin vec3 aPosition;\n\nuniform mat4 projectionMatrix;\nuniform mat4 modelMatrix;\nuniform mat4 viewMatrix;\n\nvoid main(){\n    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPosition, 1.0);\n}"]).trim();
+        params.fragmentShaderSource = glslify(["#version 300 es\nprecision mediump float;\n#define GLSLIFY 1\n\nuniform vec3 uColor;\n\nout vec4 outColor;\n\nvoid main(){\n    outColor = vec4(uColor, 1.0);\n}"]).trim();
+
+        _this.uniforms = {};
+        _this.attributes = {};
+        _this.params = params;
+
+        _this._onChangeRotation = _this._onChangeRotation.bind(_this);
+
+        try {
+            _this.renderer = params.renderer;
+            if (_this.renderer === undefined) throw 'renderer is undefined.';
+        } catch (e) {
+            console.error(e);
+        }
+
+        _this.position = new _index.Vector3(0, 0, 0);
+        _this.scale = new _index.Vector3(1, 1, 1);
+
+        _this.rotation = new _index.Euler();
+        _this.rotationQuaternion = new _index.Quaternion();
+        _this.rotationMat = new _index.Matrix4();
+        _this.rotation.onChange(_this._onChangeRotation);
+
+        _this._color = new _index.Color();
+        _this.colorVector3 = new _index.Vector3();
+        _this.color = params.color ? params.color : '#ff0000';
+
+        _this.modelMatrix = new _index.Matrix4();
+        _this.updateModelMatrix();
+
+        _this.pts = _this.params.pts ? _this.params.pts : [];
+        _this.gl = _this.renderer.gl;
+        _this.program = _this.renderer.createProgram(params.vertexShaderSource, params.fragmentShaderSource);
+
+        _this._initializeUniforms();
+
+        _this._createShape();
+        return _this;
+    }
+
+    _createClass(Line, [{
+        key: '_onChangeRotation',
+        value: function _onChangeRotation() {
+            this.rotationQuaternion.setFromEuler(this.rotation);
+            this.updateModelMatrix();
+        }
+    }, {
+        key: 'updateModelMatrix',
+        value: function updateModelMatrix() {
+            this.modelMatrix.compose(this.position, this.rotationQuaternion, this.scale);
+            this.modelMatrixArray = new Float32Array(this.modelMatrix.toArray());
+        }
+    }, {
+        key: '_initializeUniforms',
+        value: function _initializeUniforms() {
+            var numUniforms = this.gl.getProgramParameter(this.program, this.gl.ACTIVE_UNIFORMS);
+
+            for (var ii = 0; ii < numUniforms; ii++) {
+                var uniformInfo = this.gl.getActiveUniform(this.program, ii);
+                var uniformLocation = this.gl.getUniformLocation(this.program, uniformInfo.name);
+                this.uniforms[uniformInfo.name] = new _index.Uniform({
+                    uniformInfo: uniformInfo,
+                    uniformLocation: uniformLocation,
+                    gl: this.gl
+                });
+            }
+        }
+    }, {
+        key: '_createShape',
+        value: function _createShape() {
+            this.vertices = new Float32Array(this.pts.length * 3);
+
+            for (var ii = 0; ii < this.pts.length; ii++) {
+
+                this.vertices[3 * ii + 0] = this.pts[ii].x;
+                this.vertices[3 * ii + 1] = this.pts[ii].y;
+                this.vertices[3 * ii + 2] = this.pts[ii].z;
+            }
+
+            var shapeAttribute = {
+                positions: { name: 'aPosition', itemSize: 3, data: this.vertices }
+            };
+
+            this.lineVao = this.gl.createVertexArray();
+            this.gl.bindVertexArray(this.lineVao);
+
+            this.initializeAttributes(shapeAttribute);
+        }
+    }, {
+        key: 'initializeAttributes',
+        value: function initializeAttributes(attributes) {
+            for (var key in attributes) {
+                this.attributes[key] = new _index.Attribute({
+                    gl: this.gl,
+                    program: this.program,
+                    itemSize: attributes[key].itemSize,
+                    data: attributes[key].data,
+                    name: attributes[key].name,
+                    indexArray: attributes[key].indexArray
+                });
+                this.attributes[key].bind();
+            }
+        }
+    }, {
+        key: 'updatePts',
+        value: function updatePts() {
+            var pts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+
+            this.pts = pts;
+            this.vertices = new Float32Array(this.pts.length * 3);
+
+            for (var ii = 0; ii < this.pts.length; ii++) {
+                this.vertices[3 * ii + 0] = this.pts[ii].x;
+                this.vertices[3 * ii + 1] = this.pts[ii].y;
+                this.vertices[3 * ii + 2] = this.pts[ii].z;
+            }
+
+            this.gl.bindVertexArray(this.lineVao);
+            this.attributes['positions'].updateData(this.vertices);
+        }
+    }, {
+        key: 'updateViewMatrix',
+        value: function updateViewMatrix(value) {
+            if (value instanceof _index.Matrix4) {
+                this.viewMatrixArray = new Float32Array(value.toArray());
+            } else if (value instanceof _index.PerspectiveCamera) {
+                this.viewMatrixArray = new Float32Array(value.toViewArray());
+            } else {
+                console.warn('[Box:updateViewMatrix] value you pass is not matched, you need to pass class of Matrix4 or Camera', value);
+            }
+        }
+    }, {
+        key: 'updateProjectionMatrix',
+        value: function updateProjectionMatrix(value) {
+            if (value instanceof _index.Matrix4) {
+                this.projectionMatrixArray = new Float32Array(value.toArray());
+            } else if (value instanceof _index.PerspectiveCamera) {
+                this.projectionMatrixArray = new Float32Array(value.toProjectionArray());
+            } else {
+                console.warn('[Box:updateProjectMatrix] value you pass is not matched, you need to pass class of Matrix4 or Camera', value);
+            }
+        }
+    }, {
+        key: '_updateUniforms',
+        value: function _updateUniforms() {
+            // console.log(this.uniforms);
+            this.uniforms['uColor'].set3f(this._color.r, this._color.g, this._color.b);
+            this.uniforms['projectionMatrix'].setMatrix4(this.projectionMatrixArray);
+            this.uniforms['modelMatrix'].setMatrix4(this.modelMatrixArray);
+            this.uniforms['viewMatrix'].setMatrix4(this.viewMatrixArray);
+        }
+    }, {
+        key: 'draw',
+        value: function draw() {
+            var gl = this.renderer.gl;
+
+            gl.useProgram(this.program);
+            gl.bindVertexArray(this.lineVao);
+
+            this._updateUniforms();
+
+            gl.drawArrays(gl.LINES, 0, this.pts.length);
+        }
+    }, {
+        key: 'color',
+        set: function set(value) {
+            this._colorStr = value;
+            this._color.setStyle(this._colorStr);
+        },
+        get: function get() {
+            return this._colorStr;
+        }
+    }]);
+
+    return Line;
+}(EventEmitter);
+
+},{"../index":9,"eventemitter3":1,"glslify":2}],26:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5691,7 +6022,7 @@ var Rectangle = exports.Rectangle = function (_Shape) {
     return Rectangle;
 }(_Shape2.Shape);
 
-},{"../math/Color":11,"../math/Vector2":16,"../math/Vector3":17,"./Shape":24,"glslify":2}],24:[function(require,module,exports){
+},{"../math/Color":11,"../math/Vector2":16,"../math/Vector3":17,"./Shape":27,"glslify":2}],27:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5722,6 +6053,7 @@ var Shape = exports.Shape = function (_EventEmitter) {
         var _this = _possibleConstructorReturn(this, (Shape.__proto__ || Object.getPrototypeOf(Shape)).call(this));
 
         params = params || {};
+
         _this.uniforms = {};
         _this.attributes = {};
         try {
@@ -5779,7 +6111,7 @@ var Shape = exports.Shape = function (_EventEmitter) {
     return Shape;
 }(EventEmitter);
 
-},{"../core/Attribute":4,"../core/Uniform":8,"eventemitter3":1}],25:[function(require,module,exports){
+},{"../core/Attribute":4,"../core/Uniform":8,"eventemitter3":1}],28:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -5860,7 +6192,7 @@ var TextureRectangle = exports.TextureRectangle = function (_Rectangle) {
     return TextureRectangle;
 }(_index.Rectangle);
 
-},{"../index":9,"glslify":2}],26:[function(require,module,exports){
+},{"../index":9,"glslify":2}],29:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6014,7 +6346,7 @@ var Triangle = exports.Triangle = function (_Shape) {
     return Triangle;
 }(_Shape2.Shape);
 
-},{"../math/Color":11,"../math/Vector2":16,"../math/Vector3":17,"./Shape":24,"glslify":2}],27:[function(require,module,exports){
+},{"../math/Color":11,"../math/Vector2":16,"../math/Vector3":17,"./Shape":27,"glslify":2}],30:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6133,7 +6465,7 @@ var Texture = exports.Texture = function () {
     return Texture;
 }();
 
-},{"../index":9,"eventemitter3":1}],28:[function(require,module,exports){
+},{"../index":9,"eventemitter3":1}],31:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6144,7 +6476,7 @@ var appProperties = exports.appProperties = {
     textureNeedsUpdate: false
 };
 
-},{}],29:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6154,7 +6486,7 @@ var Constant = {};
 
 exports.Constant = Constant;
 
-},{}],30:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

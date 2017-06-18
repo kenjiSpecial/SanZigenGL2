@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>ArrowHelper</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="main.css">
+</head>
+<body>
+<div class="content">
+    <h1 class="title">ArrowHelper</h1>
+    <div class="description">Rendering of Arrow using ArrowHelper</div>
+    <div class="codeUrl"><a href="https://github.com/kenjiSpecial/SanZigenGL2/blob/master/test/test7ArrowHelper.html" target="_blank">Sample Code</a> | <a href="https://github.com/kenjiSpecial/SanZigenGL2/blob/master/src/js/SanZigen/shape/ArrowHelper.js">Module Code</a></div>
+</div>
+<script src="../dest/SanZigenGL2.js"></script>
+
+<script>
+    var renderer = new San.WebGLRenderer({antialias: true});
+    document.body.appendChild(renderer.domElement);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    var arrows = [];
+    var arrowNum = 18;
+
+    for(let ii = 0; ii < arrowNum; ii++){
+
+        let arrowHelper = new San.ArrowHelper({
+            renderer: this.renderer,
+            size : 100,
+            direction : new San.Vector3(Math.cos(2 * Math.PI / arrowNum * ii), Math.sin(2 * Math.PI/arrowNum * ii), 0)
+        });
+
+        arrows.push(arrowHelper);
+    }
+
+    for(let jj = 0; jj < arrowNum; jj++){
+        let arrowHelper = new San.ArrowHelper({
+            renderer: this.renderer,
+            size : 100,
+            direction : new San.Vector3(Math.cos(2 * Math.PI / arrowNum * jj), 0, Math.sin(2 * Math.PI/arrowNum * jj)),
+            color : '#00ff00'
+        });
+
+        arrows.push(arrowHelper);
+    }
+
+    var camera = new San.PerspectiveCamera();
+    camera.setProjectionMatrix(60, window.innerWidth / window.innerHeight, 1, 10000);
+    camera.position.z = 500;
+
+    for(var ii = 0; ii < arrows.length; ii++){
+        arrows[ii].updateProjectionMatrix(camera);
+    }
+
+    camera.updateViewMatrix();
+
+    for(var ii = 0; ii < arrows.length; ii++){
+        arrows[ii].updateViewMatrix(camera);
+    }
+
+    render();
+
+    function render(){
+        let gl = this.renderer.gl;
+
+        gl.clearColor(0, 0, 0, 1);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+
+        for(var ii = 0; ii < arrows.length; ii++){
+            arrows[ii].draw();
+        }
+
+    }
+
+
+</script>
+</body>
+</html>

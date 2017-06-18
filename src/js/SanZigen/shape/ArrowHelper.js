@@ -11,8 +11,6 @@ export class ArrowHelper extends Line{
         this.upVec = new Vector3(0, 1, 0);
         this.direction = params.direction ? params.direction : new Vector3(1, 0, 0);
 
-        console.log(this.direction);
-
         this._updatePts();
         this.updateDirection();
     }

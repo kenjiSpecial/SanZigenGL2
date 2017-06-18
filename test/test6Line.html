@@ -8,15 +8,57 @@
     <link rel="stylesheet" type="text/css" href="main.css">
 </head>
 <body>
-<h1 class="title">Line</h1>
-<div class="description"></div>
-<div class="codeUrl"><a href="" target="_blank">Sample Code</a> | <a href="">Module Code</a></div>
+
+<div class="content">
+    <h1 class="title">Line</h1>
+    <div class="description">Rendering of Line using Line CLass.</div>
+    <div class="codeUrl"><a class="sampleCodeUrl" href="https://github.com/kenjiSpecial/SanZigenGL2/blob/master/test/test6Line.html" target="_blank">Sample Code</a> | <a class="moduleCodeUrl" href="https://github.com/kenjiSpecial/SanZigenGL2/blob/master/src/js/SanZigen/shape/Line.js">Module Code</a></div>
+</div>
+
 <script src="../dest/SanZigenGL2.js"></script>
-<script id="vertexShader" type="x-shader/x-vertex">
-</script>
-<script id="fragmentShader" type="x-shader/x-fragment">
-</script>
 <script>
+    var renderer = new San.WebGLRenderer({antialias: true});
+    document.body.appendChild(renderer.domElement);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    var lines = [];
+    var lineNumber = 100;
+
+    var baseNumber = 150;
+    for(var ii = 0; ii < lineNumber; ii++){
+        var line = new San.Line({
+            renderer : this.renderer,
+            pts : [
+                new San.Vector3(San.Math.randFloat(-100, 100), San.Math.randFloat(-100, 100), San.Math.randFloat(-100, 100)),
+                new San.Vector3(San.Math.randFloat(-100, 100), San.Math.randFloat(-100, 100), San.Math.randFloat(-100, 100)),
+            ]
+        });
+        lines.push(line)
+    }
+
+    var camera = new San.PerspectiveCamera();
+    camera.setProjectionMatrix(60, window.innerWidth / window.innerHeight, 1, 10000);
+    camera.position.z = 500;
+    camera.updateViewMatrix();
+
+    for(var ii = 0; ii < lines.length; ii++){
+        lines[ii].updateProjectionMatrix(camera);
+        lines[ii].updateViewMatrix(camera);
+    }
+
+    render();
+
+    function render(){
+        var gl = renderer.gl;
+
+        gl.clearColor(0, 0, 0, 1);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        for(var ii = 0; ii < lines.length; ii++){
+            lines[ii].draw();
+        }
+    }
+
 </script>
 </body>
 </html>

@@ -62,7 +62,7 @@ class WebGLRenderer {
 
          this.setFlipSided(false);
          this.enable(this.gl.CULL_FACE);
-         this.setCullFace()
+         this.setCullFace(this.gl.BACK)
 
 
          // this.enable(this.gl.BLEND);
@@ -149,9 +149,9 @@ class WebGLRenderer {
 
     // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Constants
     // https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace
-    setCullFace(id=0x0408 /** gl.FRONT_AND_BACK **/){
+    setCullFace(id = 0x0405 /** gl.BACK = 0x0405 **/ ){
          if(id !== this.currentCullFace){
-             this.gl.cullFace(this.gl.FRONT);
+             this.gl.cullFace(id);
              this.currentCullFace = id;
          }
     }

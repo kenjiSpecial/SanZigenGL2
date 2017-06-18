@@ -12,7 +12,7 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-let $, title, url, description, date, titleId, imgUrl;
+let $, title, url, description, date, titleId, imgUrl, sampleCodeUrl, moduleCodeUrl;
 let $index, $article, fileName, targetHTML;
 let readCnt = 0;
 
@@ -32,6 +32,10 @@ rl.question('what html do you want to capture screeshot? ', (fileName) => {
             imgUrl = `./img/${titleId}.jpg`
             description = $(".description").html().trim();
             date = getFormattedDate();
+            sampleCodeUrl = $(".sampleCodeUrl").attr('href');
+            moduleCodeUrl = $(".moduleCodeUrl").attr('href');
+
+            console.log(`sampleCodeUrl: ${sampleCodeUrl}, moduleCodeUrl: ${moduleCodeUrl}`);
 
             readCnt++;
             if(readCnt === 2) loaded();
@@ -67,15 +71,16 @@ function loaded(){
 
 function addArticle(){
     var $gallery = $index('.gallery');
-    var tempalte = articleTemplate(title, titleId, url, imgUrl, title, description, date);
+    var tempalte = articleTemplate(title, titleId, url, imgUrl, title, description, date, sampleCodeUrl, moduleCodeUrl);
     $gallery.append(tempalte)
 }
 
 function updateArticle(){
-
     $article.find('.article-title').text(title);
     $article.find('.article-desc').text(description);
     $article.find('.article-date').text(date);
+    $article.find('.sampleCodeUrl').attr('href', sampleCodeUrl);
+    $article.find('.moduleCodeUrl').attr('href', moduleCodeUrl);
 }
 
 function getFormattedDate(){
